@@ -1,0 +1,1 @@
+find /tmp/action-worker-processor-healthy -mmin -1 | egrep '.*'
