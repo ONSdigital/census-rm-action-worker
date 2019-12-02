@@ -3,7 +3,7 @@ server:
 
 info:
   app:
-    name: Action Processor
+    name: Action Worker
     version: 1.0
 
 spring:
@@ -50,7 +50,7 @@ queueconfig:
 
 healthcheck:
   frequency: 1000 #milliseconds
-  filename: /tmp/action-scheduler-healthy
+  filename: /tmp/action-worker-healthy
 
 scheduler:
   frequency: 1000 #milliseconds
@@ -59,12 +59,6 @@ scheduler:
 caseapi:
   host: caseapi
   port: 8161
-
-exceptionmanager:
-  connection:
-    scheme: http
-    host: localhost
-    port: 8666
 
 messagelogging:
   logstacktraces: false
