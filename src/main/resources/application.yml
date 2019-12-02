@@ -3,7 +3,7 @@ server:
 
 info:
   app:
-    name: Action Processor
+    name: Action Worker
     version: 1.0
 
 spring:
