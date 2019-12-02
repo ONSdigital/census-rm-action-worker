@@ -1,5 +1,5 @@
 # census-rm-action-worker
-[![Build Status](https://api.travis-ci.com/ONSdigital/census-rm-action-worker.svg?branch=master)](https://api.travis-ci.com/ONSdigital/census-rm-action-worker)
+[![Build Status](https://api.travis-ci.com/ONSdigital/census-rm-action-worker.svg?branch=master)]
 
 # Overview
 TBC
