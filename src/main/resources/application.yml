@@ -50,7 +50,7 @@ queueconfig:
 
 healthcheck:
   frequency: 1000 #milliseconds
-  filename: /tmp/action-scheduler-healthy
+  filename: /tmp/action-worker-healthy
 
 scheduler:
   frequency: 1000 #milliseconds

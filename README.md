@@ -1,4 +1,4 @@
-# census-rm-action-worker-processor
+# census-rm-action-worker
 
 [![Build Status](https://travis-ci.com/ONSdigital/census-rm-action-scheduler.svg?branch=master)](https://travis-ci.com/ONSdigital/census-rm-action-scheduler)
 
