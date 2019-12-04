@@ -190,7 +190,6 @@ public class ChunkPollerIT {
     // Force the action rule to trigger
     caseClassifier.enqueueCasesForActionRule(actionRule);
 
-
     // When the action plan triggers
     String actualMessage = printerQueue.poll(20, TimeUnit.SECONDS);
 
