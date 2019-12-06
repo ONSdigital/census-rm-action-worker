@@ -8,5 +8,4 @@ import uk.gov.ons.census.action.model.entity.Case;
 
 public interface CaseRepository
     extends JpaRepository<Case, Integer>, JpaSpecificationExecutor<Case> {
-  Optional<Case> findByCaseId(UUID caseId);
 }
