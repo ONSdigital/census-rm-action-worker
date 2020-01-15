@@ -259,6 +259,7 @@ public class ChunkPollerIT {
 
     ActionPlan actionPlan = setUpActionPlan();
     Case randomCase = setUpCase(actionPlan);
+
     ActionRule actionRule = setUpActionRule(ActionType.FIELD, actionPlan);
 
     // Force the action rule to trigger
@@ -272,6 +273,7 @@ public class ChunkPollerIT {
     assertThat(actualMessage).isNotNull();
     FieldworkFollowup actualFieldworkFollowup =
         objectMapper.readValue(actualMessage, FieldworkFollowup.class);
+
     assertThat(actualFieldworkFollowup.getCaseRef())
         .isEqualTo(Integer.toString(randomCase.getCaseRef()));
 
@@ -283,6 +285,9 @@ public class ChunkPollerIT {
         .isEqualTo(randomCase.getCaseRef());
     assertThat(actualRmEvent.getPayload().getFieldCaseSelected().getActionRuleId())
         .isEqualTo(actionRule.getId().toString());
+
+    assertThat(actualFieldworkFollowup.getCeActualResponses())
+        .isEqualTo(randomCase.getCeActualResponses());
   }
 
   private UacQidDTO stubCreateWelshUacQid() throws JsonProcessingException {
