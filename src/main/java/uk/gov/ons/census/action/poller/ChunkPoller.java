@@ -19,7 +19,7 @@ public class ChunkPoller {
   }
 
   @Scheduled(fixedDelayString = "${scheduler.frequency}")
-  public void processFulfilments(){
+  public void processFulfilments() {
     do {
       chunkProcessor.processFulfilmentChunk();
     } while (chunkProcessor.isThereFulfilmentWorkToDo());

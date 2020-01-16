@@ -22,7 +22,10 @@ public class ChunkProcessor {
   private int chunkSize;
 
   public ChunkProcessor(
-      CaseToProcessRepository caseToProcessRepository, CaseProcessor caseProcessor, FulfilmentToSendRepository fulfilmentToSendRepository, FulfilmentProcessor fulfilmentProcessor) {
+      CaseToProcessRepository caseToProcessRepository,
+      CaseProcessor caseProcessor,
+      FulfilmentToSendRepository fulfilmentToSendRepository,
+      FulfilmentProcessor fulfilmentProcessor) {
     this.caseToProcessRepository = caseToProcessRepository;
     this.caseProcessor = caseProcessor;
     this.fulfilmentToSendRepository = fulfilmentToSendRepository;
@@ -42,20 +45,20 @@ public class ChunkProcessor {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW) // Start a new transaction for every chunk
   public void processFulfilmentChunk() {
-    try (Stream<FulfilmentsToSend> fulfilments = fulfilmentToSendRepository.findChunkToProcess(chunkSize)) {
+    try (Stream<FulfilmentsToSend> fulfilments =
+        fulfilmentToSendRepository.findChunkToProcess(chunkSize)) {
       fulfilments.forEach(
-              fulfilmentsToSend -> {
-                try {
-                  fulfilmentProcessor.process(fulfilmentsToSend);
-                } catch (IOException e) {
-                  e.printStackTrace();
-                }
-                fulfilmentToSendRepository.delete(fulfilmentsToSend); // Delete the fulfilment from the 'queue'
-              });
+          fulfilmentsToSend -> {
+            try {
+              fulfilmentProcessor.process(fulfilmentsToSend);
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+            fulfilmentToSendRepository.delete(
+                fulfilmentsToSend); // Delete the fulfilment from the 'queue'
+          });
     }
   }
-
-
 
   @Transactional
   public boolean isThereWorkToDo() {
@@ -66,7 +69,5 @@ public class ChunkProcessor {
   public boolean isThereFulfilmentWorkToDo() {
 
     return fulfilmentToSendRepository.count() > 0;
-
   }
-
 }
