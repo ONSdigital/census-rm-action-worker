@@ -19,7 +19,6 @@ public class FieldworkFollowupBuilderTest {
     Case caze = easyRandom.nextObject(Case.class);
     caze.setLatitude("1.123456789999");
     caze.setLongitude("-9.987654321111");
-    caze.setCeExpectedCapacity("500");
 
     ActionRule actionRule = generateRandomActionRule(easyRandom);
 
@@ -39,6 +38,8 @@ public class FieldworkFollowupBuilderTest {
     // Given
     EasyRandom easyRandom = new EasyRandom();
     Case caze = easyRandom.nextObject(Case.class);
+    caze.setCeExpectedCapacity(500);
+    caze.setCeActualResponses(234);
 
     ActionRule actionRule = generateRandomActionRule(easyRandom);
 
