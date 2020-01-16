@@ -26,7 +26,7 @@ public class FulfilmentsToSend {
   @Column(columnDefinition = "jsonb", nullable = false)
   private String messageData;
 
-  private int quantity;
+  private Integer quantity;
 
   private UUID batchId;
 }
