@@ -75,8 +75,7 @@ public class Case {
 
   @Column private Integer ceExpectedCapacity;
 
-  @Column
-  private Integer ceActualResponses;
+  @Column private Integer ceActualResponses;
 
   @Column private String collectionExerciseId;
 
