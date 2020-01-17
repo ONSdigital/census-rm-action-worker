@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
@@ -15,13 +16,19 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
+import uk.gov.ons.census.action.model.entity.FulfilmentsToSend;
 import uk.gov.ons.census.action.model.repository.CaseToProcessRepository;
+import uk.gov.ons.census.action.model.repository.FulfilmentToSendRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkProcessorTest {
   @Mock private CaseToProcessRepository caseToProcessRepository;
 
   @Mock private CaseProcessor caseProcessor;
+
+  @Mock private FulfilmentToSendRepository fulfilmentToSendRepository;
+
+  @Mock private FulfilmentProcessor fulfilmentProcessor;
 
   @InjectMocks private ChunkProcessor underTest;
 
@@ -69,6 +76,50 @@ public class ChunkProcessorTest {
 
     // Then
     verify(caseToProcessRepository).count();
+    assertThat(actualResult).isTrue();
+  }
+
+  @Test
+  public void testProcessFulfilmentChunk() throws IOException {
+    // Given
+    FulfilmentsToSend fulfilments = new FulfilmentsToSend();
+    List<FulfilmentsToSend> fulfilementsToSendList = new LinkedList<>();
+    fulfilementsToSendList.add(fulfilments);
+    when(fulfilmentToSendRepository.findChunkToProcess(anyInt()))
+        .thenReturn(fulfilementsToSendList.stream());
+
+    // When
+    underTest.processFulfilmentChunk();
+
+    // Then
+    verify(fulfilmentToSendRepository).findChunkToProcess(eq(chunkSize));
+    verify(fulfilmentProcessor).process(eq(fulfilments));
+    verify(fulfilmentToSendRepository).delete(eq(fulfilments));
+  }
+
+  @Test
+  public void testIsThereFulfilmentWorkToDoNoThereIsNot() {
+    // Given
+    when(fulfilmentToSendRepository.count()).thenReturn(0L);
+
+    // When
+    boolean actualResult = underTest.isThereFulfilmentWorkToDo();
+
+    // Then
+    verify(fulfilmentToSendRepository).count();
+    assertThat(actualResult).isFalse();
+  }
+
+  @Test
+  public void testIsThereFulfilmentWorkToDoYesThereIs() {
+    // Given
+    when(fulfilmentToSendRepository.count()).thenReturn(666L);
+
+    // When
+    boolean actualResult = underTest.isThereFulfilmentWorkToDo();
+
+    // Then
+    verify(fulfilmentToSendRepository).count();
     assertThat(actualResult).isTrue();
   }
 }

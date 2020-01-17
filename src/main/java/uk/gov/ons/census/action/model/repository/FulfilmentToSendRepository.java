@@ -14,6 +14,4 @@ public interface FulfilmentToSendRepository extends JpaRepository<FulfilmentsToS
           "SELECT * FROM actionv2.fulfilments_to_send where batch_id is not null and quantity is not null LIMIT :limit FOR UPDATE SKIP LOCKED",
       nativeQuery = true)
   Stream<FulfilmentsToSend> findChunkToProcess(@Param("limit") int limit);
-
-  Stream<FulfilmentsToSend> findByBatchIdIsNotNullAndQuantityIsNotNull();
 }

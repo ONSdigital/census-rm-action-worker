@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.ons.census.action.builders.CaseSelectedBuilder;
 import uk.gov.ons.census.action.model.dto.PrintFileDto;
-import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.entity.ActionHandler;
 import uk.gov.ons.census.action.model.entity.FulfilmentsToSend;
 
@@ -35,11 +34,6 @@ public class FulfilmentProcessor {
 
     fulfilmentPrintFile.setBatchId(fulfilmentToSend.getBatchId().toString());
     fulfilmentPrintFile.setBatchQuantity(fulfilmentToSend.getQuantity());
-
-    ResponseManagementEvent printCaseSelected =
-        caseSelectedBuilder.buildPrintMessage(fulfilmentPrintFile, null);
-
-    rabbitTemplate.convertAndSend(actionCaseExchange, "", printCaseSelected);
 
     rabbitTemplate.convertAndSend(
         outboundExchange, ActionHandler.PRINTER.getRoutingKey(), fulfilmentPrintFile);

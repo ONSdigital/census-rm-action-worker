@@ -21,4 +21,12 @@ public class JsonHelper {
       throw new RuntimeException("Failed converting Json To Object", e);
     }
   }
+
+  public static String convertObjectToJson(Object obj) {
+    try {
+      return objectMapper.writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Failed converting Object To Json", e);
+    }
+  }
 }
