@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
-import uk.gov.ons.census.action.model.entity.FulfilmentsToSend;
+import uk.gov.ons.census.action.model.entity.FulfilmentToSend;
 import uk.gov.ons.census.action.model.repository.CaseToProcessRepository;
 import uk.gov.ons.census.action.model.repository.FulfilmentToSendRepository;
 
@@ -82,8 +82,8 @@ public class ChunkProcessorTest {
   @Test
   public void testProcessFulfilmentChunk() throws IOException {
     // Given
-    FulfilmentsToSend fulfilments = new FulfilmentsToSend();
-    List<FulfilmentsToSend> fulfilementsToSendList = new LinkedList<>();
+    FulfilmentToSend fulfilments = new FulfilmentToSend();
+    List<FulfilmentToSend> fulfilementsToSendList = new LinkedList<>();
     fulfilementsToSendList.add(fulfilments);
     when(fulfilmentToSendRepository.findChunkToProcess(anyInt()))
         .thenReturn(fulfilementsToSendList.stream());

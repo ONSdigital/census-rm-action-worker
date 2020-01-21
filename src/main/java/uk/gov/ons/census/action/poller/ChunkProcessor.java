@@ -1,13 +1,12 @@
 package uk.gov.ons.census.action.poller;
 
-import java.io.IOException;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
-import uk.gov.ons.census.action.model.entity.FulfilmentsToSend;
+import uk.gov.ons.census.action.model.entity.FulfilmentToSend;
 import uk.gov.ons.census.action.model.repository.CaseToProcessRepository;
 import uk.gov.ons.census.action.model.repository.FulfilmentToSendRepository;
 
@@ -45,18 +44,16 @@ public class ChunkProcessor {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW) // Start a new transaction for every chunk
   public void processFulfilmentChunk() {
-    try (Stream<FulfilmentsToSend> fulfilments =
+    try (Stream<FulfilmentToSend> fulfilments =
         fulfilmentToSendRepository.findChunkToProcess(chunkSize)) {
-      fulfilments.forEach(
-          fulfilmentsToSend -> {
-            try {
-              fulfilmentProcessor.process(fulfilmentsToSend);
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-            fulfilmentToSendRepository.delete(
-                fulfilmentsToSend); // Delete the fulfilment from the 'queue'
-          });
+      fulfilments
+          .parallel()
+          .forEach(
+              fulfilmentsToSend -> {
+                fulfilmentProcessor.process(fulfilmentsToSend);
+                fulfilmentToSendRepository.delete(
+                    fulfilmentsToSend); // Delete the fulfilment from the 'queue'
+              });
     }
   }
 
