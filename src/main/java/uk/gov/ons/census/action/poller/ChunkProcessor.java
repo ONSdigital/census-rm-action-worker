@@ -46,14 +46,12 @@ public class ChunkProcessor {
   public void processFulfilmentChunk() {
     try (Stream<FulfilmentToSend> fulfilments =
         fulfilmentToSendRepository.findChunkToProcess(chunkSize)) {
-      fulfilments
-          .parallel()
-          .forEach(
-              fulfilmentsToSend -> {
-                fulfilmentProcessor.process(fulfilmentsToSend);
-                fulfilmentToSendRepository.delete(
-                    fulfilmentsToSend); // Delete the fulfilment from the 'queue'
-              });
+      fulfilments.forEach(
+          fulfilmentsToSend -> {
+            fulfilmentProcessor.process(fulfilmentsToSend);
+            fulfilmentToSendRepository.delete(
+                fulfilmentsToSend); // Delete the fulfilment from the 'queue'
+          });
     }
   }
 
