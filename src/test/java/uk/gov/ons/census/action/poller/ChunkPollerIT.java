@@ -288,6 +288,7 @@ public class ChunkPollerIT {
 
     assertThat(actualFieldworkFollowup.getCeActualResponses())
         .isEqualTo(randomCase.getCeActualResponses());
+    assertThat(actualFieldworkFollowup.getHandDelivery()).isEqualTo(randomCase.isHandDelivery());
   }
 
   private UacQidDTO stubCreateWelshUacQid() throws JsonProcessingException {
