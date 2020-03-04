@@ -275,7 +275,7 @@ public class ChunkPollerIT {
         objectMapper.readValue(actualMessage, FieldworkFollowup.class);
 
     assertThat(actualFieldworkFollowup.getCaseRef())
-        .isEqualTo(Integer.toString(randomCase.getCaseRef()));
+        .isEqualTo(Long.toString(randomCase.getCaseRef()));
 
     assertThat(actualActionToCaseMessage).isNotNull();
     ResponseManagementEvent actualRmEvent =
@@ -331,6 +331,7 @@ public class ChunkPollerIT {
 
   private Case setUpCase(ActionPlan actionPlan) {
     Case randomCase = easyRandom.nextObject(Case.class);
+    randomCase.setCaseRef(1234567890L);
     randomCase.setActionPlanId(actionPlan.getId().toString());
     randomCase.setReceiptReceived(false);
     randomCase.setRefusalReceived(false);

@@ -36,7 +36,7 @@ public class CaseSelectedBuilder {
     responseManagementEvent.getPayload().setFieldCaseSelected(fieldCaseSelected);
 
     fieldCaseSelected.setActionRuleId(actionRuleId.toString());
-    fieldCaseSelected.setCaseRef(Integer.parseInt(caseRef));
+    fieldCaseSelected.setCaseRef(Long.parseLong(caseRef));
 
     return responseManagementEvent;
   }
