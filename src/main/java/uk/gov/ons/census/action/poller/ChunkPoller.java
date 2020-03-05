@@ -17,4 +17,11 @@ public class ChunkPoller {
       chunkProcessor.processChunk();
     } while (chunkProcessor.isThereWorkToDo()); // Don't go to sleep while there's work to do!
   }
+
+  @Scheduled(fixedDelayString = "${scheduler.frequency}")
+  public void processFulfilments() {
+    do {
+      chunkProcessor.processFulfilmentChunk();
+    } while (chunkProcessor.isThereFulfilmentWorkToDo());
+  }
 }

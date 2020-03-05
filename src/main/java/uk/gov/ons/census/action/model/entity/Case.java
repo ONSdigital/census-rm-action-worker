@@ -81,10 +81,6 @@ public class Case {
 
   @Column private String actionPlanId;
 
-  @Column
-  @Enumerated(EnumType.STRING)
-  private CaseState state;
-
   @Column(name = "receipt_received", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
   private boolean receiptReceived;
 
@@ -96,4 +92,7 @@ public class Case {
 
   @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
   private boolean undeliveredAsAddressed;
+
+  @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+  private boolean handDelivery;
 }
