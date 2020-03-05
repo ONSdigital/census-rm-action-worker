@@ -331,7 +331,6 @@ public class ChunkPollerIT {
 
   private Case setUpCase(ActionPlan actionPlan) {
     Case randomCase = easyRandom.nextObject(Case.class);
-    randomCase.setCaseRef(1234567890L);
     randomCase.setActionPlanId(actionPlan.getId().toString());
     randomCase.setReceiptReceived(false);
     randomCase.setRefusalReceived(false);
