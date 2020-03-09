@@ -1,18 +1,24 @@
 package uk.gov.ons.census.action.model.entity;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import java.util.Map;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 @Data
 @Entity
+@TypeDefs({@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)})
 @Table(
-    name = "cases",
-    indexes = {
-      @Index(name = "receipt_received_idx", columnList = "receipt_received"),
-      @Index(name = "case_id_idx", columnList = "case_id", unique = true),
-      @Index(name = "treatment_code_idx", columnList = "treatment_code")
-    })
+        name = "cases",
+        indexes = {
+                @Index(name = "receipt_received_idx", columnList = "receipt_received"),
+                @Index(name = "case_id_idx", columnList = "case_id", unique = true),
+                @Index(name = "treatment_code_idx", columnList = "treatment_code")
+        })
 public class Case {
 
   @Id private int caseRef;
@@ -93,6 +99,10 @@ public class Case {
   @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
   private boolean undeliveredAsAddressed;
 
-  @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+  @Column(columnDefinition = "BOOLEAN DEFAULT false")
   private boolean handDelivery;
+
+  @Type(type = "jsonb")
+  @Column(columnDefinition = "jsonb")
+  private Map<String, String> metadata;
 }

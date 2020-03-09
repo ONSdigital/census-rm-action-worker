@@ -55,6 +55,7 @@ public class FieldworkFollowupBuilderTest {
     assertThat(actualResult.getBlankQreReturned()).isFalse();
     assertThat(actualResult.getCaseId()).isEqualTo(caze.getCaseId().toString());
     assertThat(actualResult.getCaseRef()).isEqualTo(Integer.toString(caze.getCaseRef()));
+    assertThat(actualResult.getMetadata()).isEqualTo(caze.getMetadata());
     assertThat(actualResult)
         .isEqualToIgnoringGivenFields(
             caze,
