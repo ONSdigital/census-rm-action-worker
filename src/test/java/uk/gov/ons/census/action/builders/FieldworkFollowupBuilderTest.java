@@ -54,7 +54,7 @@ public class FieldworkFollowupBuilderTest {
     assertThat(actualResult.getUndeliveredAsAddress()).isEqualTo(caze.isUndeliveredAsAddressed());
     assertThat(actualResult.getBlankQreReturned()).isFalse();
     assertThat(actualResult.getCaseId()).isEqualTo(caze.getCaseId().toString());
-    assertThat(actualResult.getCaseRef()).isEqualTo(Integer.toString(caze.getCaseRef()));
+    assertThat(actualResult.getCaseRef()).isEqualTo(Long.toString(caze.getCaseRef()));
     assertThat(actualResult)
         .isEqualToIgnoringGivenFields(
             caze,
