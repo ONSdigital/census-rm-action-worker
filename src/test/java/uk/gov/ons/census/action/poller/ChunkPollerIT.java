@@ -275,7 +275,7 @@ public class ChunkPollerIT {
         objectMapper.readValue(actualMessage, FieldworkFollowup.class);
 
     assertThat(actualFieldworkFollowup.getCaseRef())
-        .isEqualTo(Integer.toString(randomCase.getCaseRef()));
+        .isEqualTo(Long.toString(randomCase.getCaseRef()));
 
     assertThat(actualActionToCaseMessage).isNotNull();
     ResponseManagementEvent actualRmEvent =
