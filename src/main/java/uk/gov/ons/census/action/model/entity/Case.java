@@ -13,12 +13,12 @@ import org.hibernate.annotations.TypeDefs;
 @Entity
 @TypeDefs({@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)})
 @Table(
-        name = "cases",
-        indexes = {
-                @Index(name = "receipt_received_idx", columnList = "receipt_received"),
-                @Index(name = "case_id_idx", columnList = "case_id", unique = true),
-                @Index(name = "treatment_code_idx", columnList = "treatment_code")
-        })
+    name = "cases",
+    indexes = {
+      @Index(name = "receipt_received_idx", columnList = "receipt_received"),
+      @Index(name = "case_id_idx", columnList = "case_id", unique = true),
+      @Index(name = "treatment_code_idx", columnList = "treatment_code")
+    })
 public class Case {
 
   @Id private int caseRef;
