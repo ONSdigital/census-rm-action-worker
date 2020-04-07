@@ -337,6 +337,8 @@ public class ChunkPollerIT {
     randomCase.setRefusalReceived(false);
     randomCase.setAddressInvalid(false);
     randomCase.setTreatmentCode("HH_LF2R1E");
+    randomCase.setCaseType("HH");
+    randomCase.setRegion("E1000");
     caseRepository.saveAndFlush(randomCase);
     return randomCase;
   }
