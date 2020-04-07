@@ -472,8 +472,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType =
-        QidUacBuilder.calculateQuestionnaireType("CE_L666N", "N1000", "E");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "N1000", "E");
 
     // Then
     assertEquals("34", actualQuestionnaireType);
