@@ -304,6 +304,9 @@ public class QidUacBuilderTest {
     // Given
     Case linkedCase = easyRandom.nextObject(Case.class);
     linkedCase.setTreatmentCode("HH_LF2R1E");
+    linkedCase.setRegion("E1000");
+    linkedCase.setCaseType("HH");
+    linkedCase.setAddressLevel("U");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(ENGLISH_QUESTIONNAIRE_TYPE)))
         .thenReturn(uacQidDTO);
@@ -325,6 +328,9 @@ public class QidUacBuilderTest {
     // Given
     Case linkedCase = easyRandom.nextObject(Case.class);
     linkedCase.setTreatmentCode("HH_LF2R3BE");
+    linkedCase.setRegion("E1000");
+    linkedCase.setCaseType("HH");
+    linkedCase.setAddressLevel("U");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(ENGLISH_QUESTIONNAIRE_TYPE)))
         .thenReturn(uacQidDTO);
@@ -345,6 +351,9 @@ public class QidUacBuilderTest {
     // Given
     Case linkedCase = easyRandom.nextObject(Case.class);
     linkedCase.setTreatmentCode("HH_LF2R3BW");
+    linkedCase.setRegion("W1000");
+    linkedCase.setCaseType("HH");
+    linkedCase.setAddressLevel("U");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     UacQidDTO welshUacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE)))
@@ -375,7 +384,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH_LF2R3BE");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH", "E1000", "U");
 
     // Then
     assertEquals("01", actualQuestionnaireType);
@@ -386,7 +395,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH_LF2R1W");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH", "W1000", "U");
 
     // Then
     assertEquals("02", actualQuestionnaireType);
@@ -397,7 +406,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH_1LSFN");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH", "N1000", "U");
 
     // Then
     assertEquals("04", actualQuestionnaireType);
@@ -408,7 +417,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CI_L666E");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "E1000", "U");
 
     // Then
     assertEquals("21", actualQuestionnaireType);
@@ -419,7 +428,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CI_L666W");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "W1000", "U");
 
     // Then
     assertEquals("22", actualQuestionnaireType);
@@ -430,7 +439,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CI_L666N");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "N1000", "U");
 
     // Then
     assertEquals("24", actualQuestionnaireType);
@@ -441,7 +450,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE_L666E");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "E1000", "E");
 
     // Then
     assertEquals("31", actualQuestionnaireType);
@@ -452,7 +461,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE_L666W");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "W1000", "E");
 
     // Then
     assertEquals("32", actualQuestionnaireType);
@@ -463,7 +472,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE_L666N");
+    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "N1000", "E");
 
     // Then
     assertEquals("34", actualQuestionnaireType);
@@ -474,7 +483,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    QidUacBuilder.calculateQuestionnaireType("CE_L666X");
+    QidUacBuilder.calculateQuestionnaireType("CE", "Z1000", "U");
 
     // Then
     // Exception thrown - expected
@@ -485,7 +494,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    QidUacBuilder.calculateQuestionnaireType("ZZ_L666E");
+    QidUacBuilder.calculateQuestionnaireType("ZZ", "E1000", "U");
 
     // Then
     // Exception thrown - expected

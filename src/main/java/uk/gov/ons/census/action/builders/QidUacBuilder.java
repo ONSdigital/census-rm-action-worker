@@ -26,6 +26,17 @@ public class QidUacBuilder {
           ActionType.ICL1E,
           ActionType.ICL2W,
           ActionType.ICL4N);
+
+  private static final String ADDRESS_LEVEL_ESTAB = "E";
+
+  private static final String COUNTRY_CODE_ENGLAND = "E";
+  private static final String COUNTRY_CODE_WALES = "W";
+  private static final String COUNTRY_CODE_NORTHERN_IRELAND = "N";
+
+  private static final String CASE_TYPE_HOUSEHOLD = "HH";
+  private static final String CASE_TYPE_SPG = "SPG";
+  private static final String CASE_TYPE_CE = "CE";
+
   private static final int NUM_OF_UAC_QID_PAIRS_NEEDED_BY_A_WALES_INITIAL_CONTACT_QUESTIONNAIRE = 2;
   private static final int NUM_OF_UAC_QID_PAIRS_NEEDED_FOR_SINGLE_LANGUAGE = 1;
   private static final String WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE = "02";
@@ -110,7 +121,10 @@ public class QidUacBuilder {
   private UacQidTuple createNewUacQidPairsForAction(Case linkedCase, ActionType actionType) {
     UacQidTuple uacQidTuple = new UacQidTuple();
     uacQidTuple.setUacQidLink(
-        createNewUacQidPair(linkedCase, calculateQuestionnaireType(linkedCase.getTreatmentCode())));
+        createNewUacQidPair(
+            linkedCase,
+            calculateQuestionnaireType(
+                linkedCase.getCaseType(), linkedCase.getRegion(), linkedCase.getAddressLevel())));
     if (actionType.equals(ActionType.P_QU_H2)) {
       uacQidTuple.setUacQidLinkWales(
           Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
@@ -155,45 +169,62 @@ public class QidUacBuilder {
     return initialContactActionTypes.contains(actionType);
   }
 
-  public static String calculateQuestionnaireType(String treatmentCode) {
-    String country = treatmentCode.substring(treatmentCode.length() - 1);
-    if (!country.equals("E") && !country.equals("W") && !country.equals("N")) {
-      throw new IllegalArgumentException(
-          String.format("Unknown Country for treatment code %s", treatmentCode));
+  public static String calculateQuestionnaireType(
+      String caseType, String region, String addressLevel) {
+    String country = region.substring(0, 1);
+    if (!country.equals(COUNTRY_CODE_ENGLAND)
+        && !country.equals(COUNTRY_CODE_WALES)
+        && !country.equals(COUNTRY_CODE_NORTHERN_IRELAND)) {
+      throw new IllegalArgumentException(String.format("Unknown Country: %s", caseType));
     }
 
-    if (treatmentCode.startsWith("HH")) {
+    if (isCeCaseType(caseType) && addressLevel.equals("U")) {
       switch (country) {
-        case "E":
-          return "01";
-        case "W":
-          return "02";
-        case "N":
-          return "04";
-      }
-    } else if (treatmentCode.startsWith("CI")) {
-      switch (country) {
-        case "E":
+        case COUNTRY_CODE_ENGLAND:
           return "21";
-        case "W":
+        case COUNTRY_CODE_WALES:
           return "22";
-        case "N":
+        case COUNTRY_CODE_NORTHERN_IRELAND:
           return "24";
       }
-    } else if (treatmentCode.startsWith("CE")) {
+    } else if (isHouseholdCaseType(caseType) || isSpgCaseType(caseType)) {
       switch (country) {
-        case "E":
+        case COUNTRY_CODE_ENGLAND:
+          return "01";
+        case COUNTRY_CODE_WALES:
+          return "02";
+        case COUNTRY_CODE_NORTHERN_IRELAND:
+          return "04";
+      }
+    } else if (isCE1RequestForEstabCeCase(caseType, addressLevel)) {
+      switch (country) {
+        case COUNTRY_CODE_ENGLAND:
           return "31";
-        case "W":
+        case COUNTRY_CODE_WALES:
           return "32";
-        case "N":
+        case COUNTRY_CODE_NORTHERN_IRELAND:
           return "34";
       }
     } else {
-      throw new IllegalArgumentException(
-          String.format("Unexpected Case Type for treatment code '%s'", treatmentCode));
+      throw new IllegalArgumentException(String.format("Unexpected Case Type: %s", caseType));
     }
 
-    throw new RuntimeException(String.format("Unprocessable treatment code '%s'", treatmentCode));
+    throw new RuntimeException(String.format("Unprocessable Case Type '%s'", caseType));
+  }
+
+  private static boolean isCE1RequestForEstabCeCase(String caseType, String addressLevel) {
+    return isCeCaseType(caseType) && addressLevel.equals(ADDRESS_LEVEL_ESTAB);
+  }
+
+  private static boolean isSpgCaseType(String caseType) {
+    return caseType.equals(CASE_TYPE_SPG);
+  }
+
+  private static boolean isHouseholdCaseType(String caseType) {
+    return caseType.equals(CASE_TYPE_HOUSEHOLD);
+  }
+
+  private static boolean isCeCaseType(String caseType) {
+    return caseType.equals(CASE_TYPE_CE);
   }
 }
