@@ -1,6 +1,9 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:15432/postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
 
   rabbitmq:
     port: 35672
