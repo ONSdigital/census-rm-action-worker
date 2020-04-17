@@ -339,6 +339,9 @@ public class ChunkPollerIT {
     randomCase.setTreatmentCode("HH_LF2R1E");
     randomCase.setCaseType("HH");
     randomCase.setRegion("E1000");
+    randomCase.setFieldCoordinatorId("fieldCord1");
+    randomCase.setFieldOfficerId("MrFieldOfficer");
+    randomCase.setOrganisationName("Area51");
     caseRepository.saveAndFlush(randomCase);
     return randomCase;
   }

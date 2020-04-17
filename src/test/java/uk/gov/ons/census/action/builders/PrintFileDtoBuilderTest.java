@@ -95,6 +95,8 @@ public class PrintFileDtoBuilderTest {
     printFileDto.setPackCode(actionTypeToPackCodeMap.get(expectedActionType));
     printFileDto.setActionType(ActionType.ICHHQW.toString());
     printFileDto.setFieldCoordinatorId(caze.getFieldCoordinatorId());
+    printFileDto.setFieldOfficerId(caze.getFieldOfficerId());
+    printFileDto.setOrganisationName(caze.getOrganisationName());
 
     return printFileDto;
   }
