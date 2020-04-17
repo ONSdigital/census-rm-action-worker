@@ -11,6 +11,10 @@ public enum ActionType {
   ICHHQW(ActionHandler.PRINTER, "P_IC_H2"), // Census household questionnaire for Wales
   ICHHQN(ActionHandler.PRINTER, "P_IC_H4"), // Census household questionnaire for NI
 
+  // CE1 for initial contact
+  CE1_IC01(ActionHandler.PRINTER),
+  CE1_IC02(ActionHandler.PRINTER),
+
   // Generic actionType for use in Fieldwork followup action rules, tranches
   FIELD(ActionHandler.FIELD),
 
