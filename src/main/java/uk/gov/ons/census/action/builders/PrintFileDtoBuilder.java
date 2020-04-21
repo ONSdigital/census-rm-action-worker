@@ -39,6 +39,8 @@ public class PrintFileDtoBuilder {
     printFileDto.setPackCode(packCode);
     printFileDto.setActionType(actionType.toString());
     printFileDto.setFieldCoordinatorId(selectedCase.getFieldCoordinatorId());
+    printFileDto.setFieldOfficerId(selectedCase.getFieldOfficerId());
+    printFileDto.setOrganisationName(selectedCase.getOrganisationName());
 
     return printFileDto;
   }

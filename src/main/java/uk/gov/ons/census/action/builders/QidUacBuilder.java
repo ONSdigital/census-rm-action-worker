@@ -1,7 +1,5 @@
 package uk.gov.ons.census.action.builders;
 
-import com.godaddy.logging.Logger;
-import com.godaddy.logging.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,8 +14,6 @@ import uk.gov.ons.census.action.model.repository.UacQidLinkRepository;
 
 @Component
 public class QidUacBuilder {
-  private static final Logger log = LoggerFactory.getLogger(QidUacBuilder.class);
-
   private static final Set<ActionType> initialContactActionTypes =
       Set.of(
           ActionType.ICHHQE,
@@ -25,7 +21,9 @@ public class QidUacBuilder {
           ActionType.ICHHQN,
           ActionType.ICL1E,
           ActionType.ICL2W,
-          ActionType.ICL4N);
+          ActionType.ICL4N,
+          ActionType.CE1_IC01,
+          ActionType.CE1_IC02);
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
 

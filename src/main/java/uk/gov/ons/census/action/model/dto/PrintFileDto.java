@@ -22,4 +22,6 @@ public class PrintFileDto {
   private String packCode;
   private String actionType;
   private String fieldCoordinatorId;
+  private String fieldOfficerId;
+  private String organisationName;
 }
