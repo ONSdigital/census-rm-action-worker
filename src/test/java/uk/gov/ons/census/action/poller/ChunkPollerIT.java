@@ -17,10 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.jeasy.random.EasyRandom;
@@ -75,7 +72,6 @@ public class ChunkPollerIT {
   @Autowired private ActionRuleRepository actionRuleRepository;
   @Autowired private ActionPlanRepository actionPlanRepository;
   @Autowired private CaseToProcessRepository caseToProcessRepository;
-  @Autowired private CaseClassifier caseClassifier;
 
   private static final EasyRandom easyRandom = new EasyRandom();
 
@@ -103,11 +99,8 @@ public class ChunkPollerIT {
     UacQidDTO uacQidDto = stubCreateUacQid();
     BlockingQueue<String> printerQueue = rabbitQueueHelper.listen(outboundPrinterQueue);
     ActionPlan actionPlan = setUpActionPlan();
-    Case randomCase = setUpCase(actionPlan);
+    Case randomCase = setUpCase(actionPlan, null);
     ActionRule actionRule = setUpActionRule(ActionType.P_RL_1RL1_1, actionPlan);
-
-    // Force the action rule to trigger
-    caseClassifier.enqueueCasesForActionRule(actionRule);
 
     // When the action plan triggers
     String actualMessage = printerQueue.poll(20, TimeUnit.SECONDS);
@@ -143,11 +136,8 @@ public class ChunkPollerIT {
     UacQidDTO uacQidDto = stubCreateUacQid();
     BlockingQueue<String> printerQueue = rabbitQueueHelper.listen(outboundPrinterQueue);
     ActionPlan actionPlan = setUpActionPlan();
-    Case randomCase = setUpCase(actionPlan);
+    Case randomCase = setUpCase(actionPlan, null);
     ActionRule actionRule = setUpActionRule(ActionType.P_QU_H1, actionPlan);
-
-    // Force the action rule to trigger
-    caseClassifier.enqueueCasesForActionRule(actionRule);
 
     // When the action plan triggers
     String actualMessage = printerQueue.poll(20, TimeUnit.SECONDS);
@@ -184,11 +174,8 @@ public class ChunkPollerIT {
     UacQidDTO welshUacQidDto = stubCreateWelshUacQid();
     BlockingQueue<String> printerQueue = rabbitQueueHelper.listen(outboundPrinterQueue);
     ActionPlan actionPlan = setUpActionPlan();
-    Case randomCase = setUpCase(actionPlan);
+    Case randomCase = setUpCase(actionPlan, null);
     ActionRule actionRule = setUpActionRule(ActionType.P_QU_H2, actionPlan);
-
-    // Force the action rule to trigger
-    caseClassifier.enqueueCasesForActionRule(actionRule);
 
     // When the action plan triggers
     String actualMessage = printerQueue.poll(20, TimeUnit.SECONDS);
@@ -227,9 +214,6 @@ public class ChunkPollerIT {
     setUpIndividualCase(actionPlan);
     ActionRule actionRule = setUpActionRule(ActionType.P_QU_H2, actionPlan);
 
-    // Force the action rule to trigger
-    caseClassifier.enqueueCasesForActionRule(actionRule);
-
     // When the action plan triggers
     String actualMessage = printerQueue.poll(20, TimeUnit.SECONDS);
 
@@ -258,12 +242,9 @@ public class ChunkPollerIT {
     BlockingQueue<String> caseSelectedEventQueue = rabbitQueueHelper.listen(actionCaseQueue);
 
     ActionPlan actionPlan = setUpActionPlan();
-    Case randomCase = setUpCase(actionPlan);
+    Case randomCase = setUpCase(actionPlan, null);
 
     ActionRule actionRule = setUpActionRule(ActionType.FIELD, actionPlan);
-
-    // Force the action rule to trigger
-    caseClassifier.enqueueCasesForActionRule(actionRule);
 
     // When the action plan triggers
     String actualMessage = fieldQueue.poll(20, TimeUnit.SECONDS);
@@ -289,6 +270,52 @@ public class ChunkPollerIT {
     assertThat(actualFieldworkFollowup.getCeActualResponses())
         .isEqualTo(randomCase.getCeActualResponses());
     assertThat(actualFieldworkFollowup.getHandDelivery()).isEqualTo(randomCase.isHandDelivery());
+  }
+
+  @Test
+  public void testCeEstabActionRule() throws IOException, InterruptedException {
+    // Given
+    UacQidDTO uacQidDto = stubCreateUacQid();
+    BlockingQueue<String> printerQueue = rabbitQueueHelper.listen(outboundPrinterQueue);
+    ActionPlan actionPlan = setUpActionPlan();
+    Case randomCase = setUpCase(actionPlan, 5);
+    setUpActionRule(ActionType.CE_IC03, actionPlan);
+
+    // Force the action rule to trigger
+
+    // When the action plan triggers
+    List<String> actualMessages = new LinkedList<>();
+    for (int i = 0; i < 5; i++) {
+      String actualMessage = printerQueue.poll(20, TimeUnit.SECONDS);
+      assertThat(actualMessage).isNotNull();
+      actualMessages.add(actualMessage);
+    }
+
+    // Then
+    assertThat(actualMessages.size()).isEqualTo(5);
+
+    verify(exactly(5), postRequestedFor(urlEqualTo(UAC_QID_CREATE_URL)));
+
+    for (String actualMessage : actualMessages) {
+      PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
+      assertThat(actualPrintFileDto.getActionType()).isEqualTo(ActionType.CE_IC03.name());
+      assertThat(actualPrintFileDto.getPackCode()).isEqualTo(ActionType.CE_IC03.getPackCode());
+      assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
+      assertThat(actualPrintFileDto)
+          .isEqualToIgnoringGivenFields(
+              randomCase,
+              "uac",
+              "qid",
+              "uacWales",
+              "qidWales",
+              "title",
+              "forename",
+              "surname",
+              "batchId",
+              "batchQuantity",
+              "packCode",
+              "actionType");
+    }
   }
 
   private UacQidDTO stubCreateWelshUacQid() throws JsonProcessingException {
@@ -330,7 +357,7 @@ public class ChunkPollerIT {
     return actionRule;
   }
 
-  private Case setUpCase(ActionPlan actionPlan) {
+  private Case setUpCase(ActionPlan actionPlan, Integer ceExpectedCapacity) {
     Case randomCase = easyRandom.nextObject(Case.class);
     randomCase.setActionPlanId(actionPlan.getId().toString());
     randomCase.setReceiptReceived(false);
@@ -342,6 +369,7 @@ public class ChunkPollerIT {
     randomCase.setFieldCoordinatorId("fieldCord1");
     randomCase.setFieldOfficerId("MrFieldOfficer");
     randomCase.setOrganisationName("Area51");
+    randomCase.setCeExpectedCapacity(ceExpectedCapacity);
     caseRepository.saveAndFlush(randomCase);
     return randomCase;
   }

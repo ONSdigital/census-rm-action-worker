@@ -25,3 +25,30 @@ services:
     volumes:
       - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
       - ./definitions.json:/opt/definitions.json:ro
+
+  actionscheduler:
+    container_name: actionscheduler-action-it
+    image: eu.gcr.io/census-rm-ci/rm/census-rm-action-scheduler
+    ports:
+      - "18301:8301"
+    external_links:
+      - postgres
+      - rabbitmq
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?sslmode=disable
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+    restart: always
+    healthcheck:
+      test: ["CMD", "find", "/tmp/action-scheduler-healthy", "-mmin", "-1"]
+      interval: 60s
+      timeout: 10s
+      retries: 4
+
+  start_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      actionscheduler:
+        condition: service_healthy

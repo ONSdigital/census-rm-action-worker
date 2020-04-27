@@ -1,8 +1,7 @@
 package uk.gov.ons.census.action.poller;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -87,6 +86,52 @@ public class CaseProcessorTest {
         .convertAndSend(
             eq(outboundExchange),
             eq(ActionType.ICL1E.getHandler().getRoutingKey()),
+            eq(printFileDto));
+    verify(rabbitTemplate)
+        .convertAndSend(eq(actionCaseExchange), eq(""), eq(responseManagementEvent));
+  }
+
+  @Test
+  public void testProcessQueuedCeEstabCasesForPrinter() {
+    // Given
+    ActionRule actionRule = new ActionRule();
+    actionRule.setId(UUID.randomUUID());
+    actionRule.setActionType(ActionType.CE_IC03);
+    Case caze = new Case();
+    CaseToProcess caseToProcess = new CaseToProcess();
+    caseToProcess.setActionRule(actionRule);
+    caseToProcess.setCaze(caze);
+    caseToProcess.setBatchId(UUID.randomUUID());
+    caseToProcess.setBatchQuantity(666);
+    caseToProcess.setCeExpectedCapacity(5);
+
+    PrintFileDto printFileDto = new PrintFileDto();
+    printFileDto.setPackCode("D_ICA_ICLR1");
+    ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
+
+    when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any()))
+        .thenReturn(printFileDto);
+    when(caseSelectedBuilder.buildPrintMessage(
+            any(UUID.class), anyLong(), anyString(), anyString()))
+        .thenReturn(responseManagementEvent);
+
+    // When
+    underTest.process(caseToProcess);
+
+    // Then
+    verify(printFileDtoBuilder, times(5))
+        .buildPrintFileDto(
+            eq(caze), eq("D_ICA_ICLR1"), eq(caseToProcess.getBatchId()), eq(ActionType.CE_IC03));
+    verify(caseSelectedBuilder)
+        .buildPrintMessage(
+            eq(caseToProcess.getBatchId()),
+            eq(caseToProcess.getCaze().getCaseRef()),
+            eq(printFileDto.getPackCode()),
+            eq(actionRule.getId().toString()));
+    verify(rabbitTemplate, times(5))
+        .convertAndSend(
+            eq(outboundExchange),
+            eq(ActionType.CE_IC03.getHandler().getRoutingKey()),
             eq(printFileDto));
     verify(rabbitTemplate)
         .convertAndSend(eq(actionCaseExchange), eq(""), eq(responseManagementEvent));
