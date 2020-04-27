@@ -10,21 +10,21 @@ import uk.gov.ons.census.action.model.dto.EventType;
 import uk.gov.ons.census.action.model.dto.FieldCaseSelected;
 import uk.gov.ons.census.action.model.dto.Payload;
 import uk.gov.ons.census.action.model.dto.PrintCaseSelected;
-import uk.gov.ons.census.action.model.dto.PrintFileDto;
 import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 
 @Component
 public class CaseSelectedBuilder {
-  public ResponseManagementEvent buildPrintMessage(PrintFileDto printFileDto, String actionRuleId) {
+  public ResponseManagementEvent buildPrintMessage(
+      UUID batchId, long caseRef, String packCode, String actionRuleId) {
     ResponseManagementEvent responseManagementEvent =
         buildEventWithoutPayload(EventType.PRINT_CASE_SELECTED);
     PrintCaseSelected printCaseSelected = new PrintCaseSelected();
     responseManagementEvent.getPayload().setPrintCaseSelected(printCaseSelected);
 
     printCaseSelected.setActionRuleId(actionRuleId);
-    printCaseSelected.setBatchId(printFileDto.getBatchId());
-    printCaseSelected.setCaseRef(printFileDto.getCaseRef());
-    printCaseSelected.setPackCode(printFileDto.getPackCode());
+    printCaseSelected.setBatchId(batchId.toString());
+    printCaseSelected.setCaseRef(caseRef);
+    printCaseSelected.setPackCode(packCode);
 
     return responseManagementEvent;
   }

@@ -14,7 +14,7 @@ import uk.gov.ons.census.action.model.repository.UacQidLinkRepository;
 
 @Component
 public class QidUacBuilder {
-  private static final Set<ActionType> initialContactActionTypes =
+  private static final Set<ActionType> uacQidPreGeneratedActionTypes =
       Set.of(
           ActionType.ICHHQE,
           ActionType.ICHHQW,
@@ -24,9 +24,7 @@ public class QidUacBuilder {
           ActionType.ICL4N,
           ActionType.CE1_IC01,
           ActionType.CE1_IC02,
-          ActionType.CE_IC03,
           ActionType.CE_IC03_1,
-          ActionType.CE_IC04,
           ActionType.CE_IC04_1);
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
@@ -58,7 +56,7 @@ public class QidUacBuilder {
 
   public UacQidTuple getUacQidLinks(Case linkedCase, ActionType actionType) {
 
-    if (isInitialContactActionType(actionType)) {
+    if (isUacQidPreGeneratedActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
     } else {
       return createNewUacQidPairsForAction(linkedCase, actionType);
@@ -167,8 +165,8 @@ public class QidUacBuilder {
         String.format("Can't find UAC QID '%s' for case", otherAllowableQuestionnaireType));
   }
 
-  private boolean isInitialContactActionType(ActionType actionType) {
-    return initialContactActionTypes.contains(actionType);
+  private boolean isUacQidPreGeneratedActionType(ActionType actionType) {
+    return uacQidPreGeneratedActionTypes.contains(actionType);
   }
 
   public static String calculateQuestionnaireType(

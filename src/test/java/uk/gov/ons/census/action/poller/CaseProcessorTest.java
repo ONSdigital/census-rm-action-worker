@@ -1,7 +1,6 @@
 package uk.gov.ons.census.action.poller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,11 +61,14 @@ public class CaseProcessorTest {
     caseToProcess.setBatchQuantity(666);
 
     PrintFileDto printFileDto = new PrintFileDto();
+    printFileDto.setPackCode("P_IC_ICL1");
     ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
 
     when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any()))
         .thenReturn(printFileDto);
-    when(caseSelectedBuilder.buildPrintMessage(any(), any())).thenReturn(responseManagementEvent);
+    when(caseSelectedBuilder.buildPrintMessage(
+            any(UUID.class), anyLong(), anyString(), anyString()))
+        .thenReturn(responseManagementEvent);
 
     // When
     underTest.process(caseToProcess);
@@ -76,7 +78,11 @@ public class CaseProcessorTest {
         .buildPrintFileDto(
             eq(caze), eq("P_IC_ICL1"), eq(caseToProcess.getBatchId()), eq(ActionType.ICL1E));
     verify(caseSelectedBuilder)
-        .buildPrintMessage(eq(printFileDto), eq(actionRule.getId().toString()));
+        .buildPrintMessage(
+            eq(caseToProcess.getBatchId()),
+            eq(caseToProcess.getCaze().getCaseRef()),
+            eq(printFileDto.getPackCode()),
+            eq(actionRule.getId().toString()));
     verify(rabbitTemplate)
         .convertAndSend(
             eq(outboundExchange),
