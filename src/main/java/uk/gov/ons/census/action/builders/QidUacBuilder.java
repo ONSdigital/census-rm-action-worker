@@ -58,6 +58,8 @@ public class QidUacBuilder {
 
     if (isUacQidPreGeneratedActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
+    } else if (actionType == ActionType.CE_IC03 || actionType == ActionType.CE_IC04) {
+      return createNewUacQidPairsForAction(linkedCase, actionType, "U");
     } else {
       return createNewUacQidPairsForAction(linkedCase, actionType);
     }
@@ -118,18 +120,23 @@ public class QidUacBuilder {
     return uacQidTuple;
   }
 
-  private UacQidTuple createNewUacQidPairsForAction(Case linkedCase, ActionType actionType) {
+  private UacQidTuple createNewUacQidPairsForAction(
+      Case linkedCase, ActionType actionType, String addressLevel) {
     UacQidTuple uacQidTuple = new UacQidTuple();
     uacQidTuple.setUacQidLink(
         createNewUacQidPair(
             linkedCase,
             calculateQuestionnaireType(
-                linkedCase.getCaseType(), linkedCase.getRegion(), linkedCase.getAddressLevel())));
+                linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel)));
     if (actionType.equals(ActionType.P_QU_H2)) {
       uacQidTuple.setUacQidLinkWales(
           Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
     }
     return uacQidTuple;
+  }
+
+  private UacQidTuple createNewUacQidPairsForAction(Case linkedCase, ActionType actionType) {
+    return createNewUacQidPairsForAction(linkedCase, actionType, linkedCase.getAddressLevel());
   }
 
   private UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType) {
