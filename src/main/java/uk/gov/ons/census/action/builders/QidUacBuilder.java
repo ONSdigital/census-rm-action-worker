@@ -25,7 +25,10 @@ public class QidUacBuilder {
           ActionType.CE1_IC01,
           ActionType.CE1_IC02,
           ActionType.CE_IC03_1,
-          ActionType.CE_IC04_1);
+          ActionType.CE_IC04_1,
+          ActionType.CE_IC05,
+          ActionType.CE_IC06,
+          ActionType.CE_IC08);
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
 
