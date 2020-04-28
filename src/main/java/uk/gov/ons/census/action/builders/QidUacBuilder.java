@@ -59,6 +59,7 @@ public class QidUacBuilder {
     if (isUacQidPreGeneratedActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
     } else if (actionType == ActionType.CE_IC03 || actionType == ActionType.CE_IC04) {
+      // We override the address level for these action types because we want to create individual uac qid pairs
       return createNewUacQidPairsForAction(linkedCase, actionType, "U");
     } else {
       return createNewUacQidPairsForAction(linkedCase, actionType);
