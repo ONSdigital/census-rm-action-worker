@@ -12,6 +12,7 @@ import uk.gov.ons.census.action.model.dto.PrintFileDto;
 import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.entity.ActionHandler;
 import uk.gov.ons.census.action.model.entity.ActionRule;
+import uk.gov.ons.census.action.model.entity.ActionType;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
 
 @Component
@@ -57,8 +58,8 @@ public class CaseProcessor {
 
     int numOfMessagesToSend = 1;
 
-    if (triggeredActionRule.getActionType().toString().equals("CE_IC03")
-        | triggeredActionRule.getActionType().toString().equals("CE_IC04")) {
+    if (triggeredActionRule.getActionType() == ActionType.CE_IC03
+        || triggeredActionRule.getActionType() == ActionType.CE_IC04) {
       numOfMessagesToSend = caseToProcess.getCeExpectedCapacity();
     }
     for (int i = 0; i < numOfMessagesToSend; i++) {
