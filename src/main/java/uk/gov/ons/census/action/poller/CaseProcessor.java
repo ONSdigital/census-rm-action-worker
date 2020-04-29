@@ -12,6 +12,7 @@ import uk.gov.ons.census.action.model.dto.PrintFileDto;
 import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.entity.ActionHandler;
 import uk.gov.ons.census.action.model.entity.ActionRule;
+import uk.gov.ons.census.action.model.entity.ActionType;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
 
 @Component
@@ -55,18 +56,29 @@ public class CaseProcessor {
 
     String routingKey = triggeredActionRule.getActionType().getHandler().getRoutingKey();
 
-    PrintFileDto printFileDto =
-        printFileDtoBuilder.buildPrintFileDto(
-            caseToProcess.getCaze(),
-            triggeredActionRule.getActionType().getPackCode(),
-            batchId,
-            triggeredActionRule.getActionType());
-    printFileDto.setBatchQuantity(batchQty);
+    int numOfMessagesToSend = 1;
 
-    rabbitTemplate.convertAndSend(outboundExchange, routingKey, printFileDto);
+    if (triggeredActionRule.getActionType() == ActionType.CE_IC03
+        || triggeredActionRule.getActionType() == ActionType.CE_IC04) {
+      numOfMessagesToSend = caseToProcess.getCeExpectedCapacity();
+    }
+    for (int i = 0; i < numOfMessagesToSend; i++) {
+      PrintFileDto printFileDto =
+          printFileDtoBuilder.buildPrintFileDto(
+              caseToProcess.getCaze(),
+              triggeredActionRule.getActionType().getPackCode(),
+              batchId,
+              triggeredActionRule.getActionType());
+      printFileDto.setBatchQuantity(batchQty);
+      rabbitTemplate.convertAndSend(outboundExchange, routingKey, printFileDto);
+    }
 
     ResponseManagementEvent printCaseSelected =
-        caseSelectedBuilder.buildPrintMessage(printFileDto, triggeredActionRule.getId().toString());
+        caseSelectedBuilder.buildPrintMessage(
+            caseToProcess.getBatchId(),
+            caseToProcess.getCaze().getCaseRef(),
+            triggeredActionRule.getActionType().getPackCode(),
+            triggeredActionRule.getId().toString());
 
     rabbitTemplate.convertAndSend(actionCaseExchange, "", printCaseSelected);
   }
