@@ -1,5 +1,7 @@
 package uk.gov.ons.census.action.poller;
 
+import static uk.gov.ons.census.action.utility.ActionTypeHelper.isCeIndividualActionType;
+
 import java.util.UUID;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +14,6 @@ import uk.gov.ons.census.action.model.dto.PrintFileDto;
 import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.entity.ActionHandler;
 import uk.gov.ons.census.action.model.entity.ActionRule;
-import uk.gov.ons.census.action.model.entity.ActionType;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
 
 @Component
@@ -58,8 +59,7 @@ public class CaseProcessor {
 
     int numOfMessagesToSend = 1;
 
-    if (triggeredActionRule.getActionType() == ActionType.CE_IC03
-        || triggeredActionRule.getActionType() == ActionType.CE_IC04) {
+    if (isCeIndividualActionType(triggeredActionRule.getActionType())) {
       numOfMessagesToSend = caseToProcess.getCeExpectedCapacity();
     }
     for (int i = 0; i < numOfMessagesToSend; i++) {
