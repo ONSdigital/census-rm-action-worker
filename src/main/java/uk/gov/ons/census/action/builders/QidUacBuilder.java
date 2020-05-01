@@ -1,5 +1,7 @@
 package uk.gov.ons.census.action.builders;
 
+import static uk.gov.ons.census.action.utility.ActionTypeHelper.isCeIndividualActionType;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,7 +62,7 @@ public class QidUacBuilder {
 
     if (isUacQidPreGeneratedActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
-    } else if (actionType == ActionType.CE_IC03 || actionType == ActionType.CE_IC04) {
+    } else if (isCeIndividualActionType(actionType)) {
       // We override the address level for these action types because we want to create individual
       // uac qid pairs
       return createNewUacQidPairsForAction(linkedCase, actionType, "U");
