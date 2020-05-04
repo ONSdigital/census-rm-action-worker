@@ -10,7 +10,9 @@ public class ActionTypeHelper {
           ActionType.CE_IC04,
           ActionType.CE_IC05,
           ActionType.CE_IC06,
-          ActionType.CE_IC08);
+          ActionType.CE_IC08,
+          ActionType.CE_IC09,
+          ActionType.CE_IC10);
 
   public static boolean isCeIndividualActionType(ActionType actionType) {
     return ceIndividualActionTypes.contains(actionType);
