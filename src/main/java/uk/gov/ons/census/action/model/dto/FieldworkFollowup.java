@@ -13,6 +13,7 @@ public class FieldworkFollowup {
   private String estabType;
   private String organisationName;
   private String uprn;
+  private String estabUprn;
   private String oa;
   private String latitude;
   private String longitude;
