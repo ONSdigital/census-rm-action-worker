@@ -40,6 +40,7 @@ public class FieldworkFollowupBuilderTest {
     Case caze = easyRandom.nextObject(Case.class);
     caze.setCeExpectedCapacity(500);
     caze.setCeActualResponses(234);
+    caze.setEstabUprn("estabUprenny");
 
     ActionRule actionRule = generateRandomActionRule(easyRandom);
 
@@ -55,6 +56,7 @@ public class FieldworkFollowupBuilderTest {
     assertThat(actualResult.getCaseId()).isEqualTo(caze.getCaseId().toString());
     assertThat(actualResult.getMetadata()).isEqualTo(caze.getMetadata());
     assertThat(actualResult.getCaseRef()).isEqualTo(Long.toString(caze.getCaseRef()));
+    assertThat(actualResult.getEstabUprn()).isEqualTo(caze.getEstabUprn());
     assertThat(actualResult)
         .isEqualToIgnoringGivenFields(
             caze,
