@@ -18,6 +18,7 @@ public class FieldworkFollowupBuilder {
     followup.setEstabType(caze.getEstabType());
     followup.setOrganisationName(caze.getOrganisationName());
     followup.setUprn(caze.getUprn());
+    followup.setEstabUprn(caze.getEstabUprn());
     followup.setOa(caze.getOa());
     followup.setLatitude(caze.getLatitude());
     followup.setLongitude(caze.getLongitude());
