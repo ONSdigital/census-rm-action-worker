@@ -170,9 +170,9 @@ public class QidUacBuilder {
   }
 
   private boolean isQuestionnaireWelsh(String treatmentCode) {
-    return (treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
-        || treatmentCode.startsWith(CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
-            && treatmentCode.endsWith(WALES_TREATMENT_CODE_SUFFIX));
+    return ((treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
+            || treatmentCode.startsWith(CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX))
+        && treatmentCode.endsWith(WALES_TREATMENT_CODE_SUFFIX));
   }
 
   private UacQidLink getSpecificUacQidLinkByQuestionnaireType(
