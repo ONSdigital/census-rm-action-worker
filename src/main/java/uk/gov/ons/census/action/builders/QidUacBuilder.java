@@ -45,9 +45,12 @@ public class QidUacBuilder {
   private static final int NUM_OF_UAC_QID_PAIRS_NEEDED_FOR_SINGLE_LANGUAGE = 1;
   private static final String WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE = "02";
   private static final String WALES_IN_WELSH_QUESTIONNAIRE_TYPE = "03";
+  private static final String WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES = "22";
+  private static final String WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES = "23";
   private static final String UNKNOWN_COUNTRY_ERROR = "Unknown Country";
   private static final String UNEXPECTED_CASE_TYPE_ERROR = "Unexpected Case Type";
   public static final String HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "HH_Q";
+  public static final String CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "CE_Q";
   public static final String WALES_TREATMENT_CODE_SUFFIX = "W";
 
   private final UacQidLinkRepository uacQidLinkRepository;
@@ -86,7 +89,7 @@ public class QidUacBuilder {
 
     } else if (actionType.equals(ActionType.ICHHQW)
         && isStateCorrectForSecondWelshUacQidPair(linkedCase, uacQidLinks)) {
-      return getUacQidTupleWithSecondWelshPair(uacQidLinks);
+      return getUacQidTupleWithSecondWelshPair(uacQidLinks, actionType);
 
     } else {
       throw new RuntimeException(
@@ -112,17 +115,24 @@ public class QidUacBuilder {
     return uacQidTuple;
   }
 
-  private UacQidTuple getUacQidTupleWithSecondWelshPair(List<UacQidLink> uacQidLinks) {
+  private UacQidTuple getUacQidTupleWithSecondWelshPair(
+      List<UacQidLink> uacQidLinks, ActionType actionType) {
     UacQidTuple uacQidTuple = new UacQidTuple();
+    String primaryQuestionnaireType = WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE;
+    String secondaryQuestionnaireType = WALES_IN_WELSH_QUESTIONNAIRE_TYPE;
+
+    if (actionType.equals(ActionType.CE_IC10)) {
+      primaryQuestionnaireType = WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES;
+      secondaryQuestionnaireType = WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES;
+    }
+
     uacQidTuple.setUacQidLink(
         getSpecificUacQidLinkByQuestionnaireType(
-            uacQidLinks, WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE, WALES_IN_WELSH_QUESTIONNAIRE_TYPE));
+            uacQidLinks, primaryQuestionnaireType, secondaryQuestionnaireType));
     uacQidTuple.setUacQidLinkWales(
         Optional.of(
             getSpecificUacQidLinkByQuestionnaireType(
-                uacQidLinks,
-                WALES_IN_WELSH_QUESTIONNAIRE_TYPE,
-                WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE)));
+                uacQidLinks, secondaryQuestionnaireType, primaryQuestionnaireType)));
     return uacQidTuple;
   }
 
@@ -137,6 +147,9 @@ public class QidUacBuilder {
     if (actionType.equals(ActionType.P_QU_H2)) {
       uacQidTuple.setUacQidLinkWales(
           Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
+    } else if (actionType.equals(ActionType.CE_IC10)) {
+      uacQidTuple.setUacQidLinkWales(
+          Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES)));
     }
     return uacQidTuple;
   }
@@ -157,7 +170,8 @@ public class QidUacBuilder {
   }
 
   private boolean isQuestionnaireWelsh(String treatmentCode) {
-    return (treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
+    return ((treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
+            || treatmentCode.startsWith(CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX))
         && treatmentCode.endsWith(WALES_TREATMENT_CODE_SUFFIX));
   }
 
