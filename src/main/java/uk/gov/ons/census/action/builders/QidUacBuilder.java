@@ -50,8 +50,7 @@ public class QidUacBuilder {
   private static final String UNKNOWN_COUNTRY_ERROR = "Unknown Country";
   private static final String UNEXPECTED_CASE_TYPE_ERROR = "Unexpected Case Type";
   public static final String HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "HH_Q";
-  public static final String CE_INDIVIDUAL_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX =
-      "CE_Q";
+  public static final String CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "CE_Q";
   public static final String WALES_TREATMENT_CODE_SUFFIX = "W";
 
   private final UacQidLinkRepository uacQidLinkRepository;
@@ -171,10 +170,9 @@ public class QidUacBuilder {
   }
 
   private boolean isQuestionnaireWelsh(String treatmentCode) {
-    return ((treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
-            || treatmentCode.startsWith(
-                CE_INDIVIDUAL_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX))
-        && treatmentCode.endsWith(WALES_TREATMENT_CODE_SUFFIX));
+    return (treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
+        || treatmentCode.startsWith(CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
+            && treatmentCode.endsWith(WALES_TREATMENT_CODE_SUFFIX));
   }
 
   private UacQidLink getSpecificUacQidLinkByQuestionnaireType(

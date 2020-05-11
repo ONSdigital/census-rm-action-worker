@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.postgresql.hostchooser.HostRequirement.any;
 import static uk.gov.ons.census.action.builders.QidUacBuilder.*;
 
 import java.util.*;
@@ -122,7 +121,7 @@ public class QidUacBuilderTest {
         .thenReturn(uacQidDTOWales);
 
     testCase.setTreatmentCode(
-        CE_INDIVIDUAL_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
+        CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
             + "BLAH"
             + WALES_TREATMENT_CODE_SUFFIX);
 
