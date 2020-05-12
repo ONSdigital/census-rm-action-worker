@@ -147,7 +147,7 @@ public class QidUacBuilder {
             linkedCase,
             calculateQuestionnaireType(
                 linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel)));
-    if (actionType.equals(ActionType.P_QU_H2) || actionType.equals(ActionType.SPG_IC14)) {
+    if (actionType.equals(ActionType.P_QU_H2)) {
       uacQidTuple.setUacQidLinkWales(
           Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
     } else if (actionType.equals(ActionType.CE_IC10)) {
