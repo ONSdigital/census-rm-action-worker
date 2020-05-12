@@ -29,7 +29,9 @@ public class QidUacBuilder {
           ActionType.CE_IC03_1,
           ActionType.CE_IC04_1,
           ActionType.SPG_IC11,
-          ActionType.SPG_IC12);
+          ActionType.SPG_IC12,
+          ActionType.SPG_IC13,
+          ActionType.SPG_IC14);
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
 
@@ -51,6 +53,7 @@ public class QidUacBuilder {
   private static final String UNEXPECTED_CASE_TYPE_ERROR = "Unexpected Case Type";
   public static final String HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "HH_Q";
   public static final String CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "CE_Q";
+  public static final String SPG_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "SPG_Q";
   public static final String WALES_TREATMENT_CODE_SUFFIX = "W";
 
   private final UacQidLinkRepository uacQidLinkRepository;
@@ -83,11 +86,11 @@ public class QidUacBuilder {
       throw new RuntimeException(
           String.format("We can't process this case id '%s' with no UACs", caseId));
 
-    } else if (!actionType.equals(ActionType.ICHHQW)
+    } else if ((!actionType.equals(ActionType.ICHHQW) && !actionType.equals(ActionType.SPG_IC14))
         && isStateCorrectForSingleUacQidPair(linkedCase, uacQidLinks)) {
       return getUacQidTupleWithSinglePair(uacQidLinks);
 
-    } else if (actionType.equals(ActionType.ICHHQW)
+    } else if ((actionType.equals(ActionType.ICHHQW) || actionType.equals(ActionType.SPG_IC14))
         && isStateCorrectForSecondWelshUacQidPair(linkedCase, uacQidLinks)) {
       return getUacQidTupleWithSecondWelshPair(uacQidLinks, actionType);
 
@@ -144,7 +147,7 @@ public class QidUacBuilder {
             linkedCase,
             calculateQuestionnaireType(
                 linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel)));
-    if (actionType.equals(ActionType.P_QU_H2)) {
+    if (actionType.equals(ActionType.P_QU_H2) || actionType.equals(ActionType.SPG_IC14)) {
       uacQidTuple.setUacQidLinkWales(
           Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
     } else if (actionType.equals(ActionType.CE_IC10)) {
@@ -171,7 +174,8 @@ public class QidUacBuilder {
 
   private boolean isQuestionnaireWelsh(String treatmentCode) {
     return ((treatmentCode.startsWith(HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
-            || treatmentCode.startsWith(CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX))
+            || treatmentCode.startsWith(CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX)
+            || treatmentCode.startsWith(SPG_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX))
         && treatmentCode.endsWith(WALES_TREATMENT_CODE_SUFFIX));
   }
 
