@@ -86,18 +86,17 @@ public class QidUacBuilder {
       throw new RuntimeException(
           String.format("We can't process this case id '%s' with no UACs", caseId));
 
-    } else if ((!actionType.equals(ActionType.ICHHQW) && !actionType.equals(ActionType.SPG_IC14))
-        && isStateCorrectForSingleUacQidPair(linkedCase, uacQidLinks)) {
+    } else if (actionType == ActionType.ICHHQW || actionType == ActionType.SPG_IC14) {
+      if (isStateCorrectForSecondWelshUacQidPair(linkedCase, uacQidLinks)) {
+        return getUacQidTupleWithSecondWelshPair(uacQidLinks, actionType);
+      }
+
+    } else if (isStateCorrectForSingleUacQidPair(linkedCase, uacQidLinks)) {
       return getUacQidTupleWithSinglePair(uacQidLinks);
-
-    } else if ((actionType.equals(ActionType.ICHHQW) || actionType.equals(ActionType.SPG_IC14))
-        && isStateCorrectForSecondWelshUacQidPair(linkedCase, uacQidLinks)) {
-      return getUacQidTupleWithSecondWelshPair(uacQidLinks, actionType);
-
-    } else {
-      throw new RuntimeException(
-          String.format("Wrong number of UACs for treatment code '%s'", actionType));
     }
+
+    throw new RuntimeException(
+        String.format("Wrong number of UACs for treatment code '%s'", actionType));
   }
 
   private boolean isStateCorrectForSingleUacQidPair(Case linkedCase, List<UacQidLink> uacQidLinks) {
