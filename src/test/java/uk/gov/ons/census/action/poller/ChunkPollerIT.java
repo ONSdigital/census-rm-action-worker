@@ -424,6 +424,7 @@ public class ChunkPollerIT {
     randomCase.setFieldOfficerId("MrFieldOfficer");
     randomCase.setOrganisationName("Area51");
     randomCase.setCeExpectedCapacity(ceExpectedCapacity);
+    randomCase.setSkeleton(false);
     caseRepository.saveAndFlush(randomCase);
     return randomCase;
   }
@@ -441,6 +442,7 @@ public class ChunkPollerIT {
     randomCase.setFieldOfficerId("MrFieldOfficer");
     randomCase.setOrganisationName("Area51");
     randomCase.setCeExpectedCapacity(ceExpectedCapacity);
+    randomCase.setSkeleton(false);
     caseRepository.saveAndFlush(randomCase);
     return randomCase;
   }
