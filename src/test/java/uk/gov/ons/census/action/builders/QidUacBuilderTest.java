@@ -82,6 +82,66 @@ public class QidUacBuilderTest {
   }
 
   @Test
+  public void testEnglishAndWelshQidTupleReturnedForSpgCases() {
+    // Given
+    Case testCase = easyRandom.nextObject(Case.class);
+    testCase.setCaseType("SPG");
+    testCase.setRegion("W");
+    testCase.setTreatmentCode("SPG_QDHUW");
+    String uacEng = easyRandom.nextObject(String.class);
+    String uacWal = easyRandom.nextObject(String.class);
+    String qidEng = "0220000010732666";
+    String qidWal = "0320000002861777";
+
+    List<UacQidLink> uacQidLinks = new ArrayList<>();
+    UacQidLink uacQidLink = new UacQidLink();
+    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setUac(uacEng);
+    uacQidLink.setQid(qidEng);
+    uacQidLinks.add(uacQidLink);
+
+    uacQidLink = new UacQidLink();
+    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setUac(uacWal);
+    uacQidLink.setQid(qidWal);
+    uacQidLinks.add(uacQidLink);
+
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
+        .thenReturn(uacQidLinks);
+
+    UacQidDTO uacQidDTOEngland = new UacQidDTO();
+    uacQidDTOEngland.setUac(uacEng);
+    uacQidDTOEngland.setQid(qidEng);
+
+    UacQidDTO uacQidDTOWales = new UacQidDTO();
+    uacQidDTOWales.setUac(uacWal);
+    uacQidDTOWales.setQid(qidWal);
+    when(caseClient.getUacQid(any(UUID.class), anyString()))
+        .thenReturn(uacQidDTOEngland)
+        .thenReturn(uacQidDTOWales);
+
+    testCase.setTreatmentCode(
+        SPG_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
+            + "BLAH"
+            + WALES_TREATMENT_CODE_SUFFIX);
+
+    // when
+    UacQidTuple uacQidTuple = qidUacBuilder.getUacQidLinks(testCase, ActionType.SPG_IC14);
+
+    UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
+    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
+    assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
+    assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
+
+    UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
+    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
+    assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
+    assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
+  }
+
+  @Test
   public void testEnglishAndWelshQidTupleReturnedForCeCases() {
     // Given
     Case testCase = easyRandom.nextObject(Case.class);
@@ -438,10 +498,10 @@ public class QidUacBuilderTest {
   }
 
   @Test
-  public void testNewUacIsRequestedForWelshInitialContactQuestionnaire() {
+  public void testNewUacIsRequestedForCeWelshInitialContactQuestionnaire() {
     // Given
     Case linkedCase = easyRandom.nextObject(Case.class);
-    linkedCase.setTreatmentCode("CE_QDIEE");
+    linkedCase.setTreatmentCode("CE_QDIEW");
     linkedCase.setRegion("W1000");
     linkedCase.setCaseType("CE");
     linkedCase.setAddressLevel("E");
