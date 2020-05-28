@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.ons.census.action.model.dto.RefusalType;
 import uk.gov.ons.census.action.model.entity.Case;
 
 @ActiveProfiles("test")
@@ -54,7 +55,7 @@ public class CaseRepositoryIT {
   @Test
   public void shouldRetrieveTenCasesWhenNoneReceiptedAndWithoutClassifiers() {
     int expectedUnreceiptedCaseSize = 10;
-    setupTestCases(expectedUnreceiptedCaseSize, false, false);
+    setupTestCases(expectedUnreceiptedCaseSize, false, null);
 
     Specification<Case> expectedSpecification = getSpecificationWithoutClassifiers();
 
@@ -67,8 +68,8 @@ public class CaseRepositoryIT {
   @Test
   public void shouldRetrieveSevenCasesWhenThreeReceiptedAndWithoutClassifiers() {
     int expectedUnreceiptedCaseSize = 7;
-    setupTestCases(expectedUnreceiptedCaseSize, false, false);
-    setupTestCases(3, true, false);
+    setupTestCases(expectedUnreceiptedCaseSize, false, null);
+    setupTestCases(3, true, null);
 
     Specification<Case> expectedSpecification = getSpecificationWithoutClassifiers();
 
@@ -81,7 +82,7 @@ public class CaseRepositoryIT {
   @Test
   public void shouldRetrieveTenCasesWhenZeroReceiptedAndWithClassifiers() {
     int expectedUnreceiptedCaseSize = 10;
-    setupTestCases(expectedUnreceiptedCaseSize, false, false);
+    setupTestCases(expectedUnreceiptedCaseSize, false, null);
 
     Specification<Case> expectedSpecification = getSpecificationWithClassifiers();
 
@@ -94,8 +95,8 @@ public class CaseRepositoryIT {
   @Test
   public void shouldRetrieveSevenCasesWhenThreeReceiptedAndWithClassifiers() {
     int expectedUnreceiptedCaseSize = 7;
-    setupTestCases(expectedUnreceiptedCaseSize, false, false);
-    setupTestCases(3, true, false);
+    setupTestCases(expectedUnreceiptedCaseSize, false, null);
+    setupTestCases(3, true, null);
 
     Specification<Case> expectedSpecification = getSpecificationWithClassifiers();
 
@@ -108,8 +109,8 @@ public class CaseRepositoryIT {
   @Test
   public void shouldRetrieveSevenCasesWhenThreeRefusedAndWithoutClassifiers() {
     int expectedNotRefusedCaseSize = 7;
-    setupTestCases(expectedNotRefusedCaseSize, false, false);
-    setupTestCases(3, false, true);
+    setupTestCases(expectedNotRefusedCaseSize, false, null);
+    setupTestCases(3, false, RefusalType.EXTRAORDINARY_REFUSAL.toString());
 
     Specification<Case> expectedSpecification = getSpecificationWithoutClassifiers();
 
@@ -122,8 +123,8 @@ public class CaseRepositoryIT {
   @Test
   public void shouldRetrieveSevenCasesWhenThreeRefusedAndWithClassifiers() {
     int expectedUnreceiptedCaseSize = 7;
-    setupTestCases(expectedUnreceiptedCaseSize, false, false);
-    setupTestCases(3, false, true);
+    setupTestCases(expectedUnreceiptedCaseSize, false, null);
+    setupTestCases(3, false, RefusalType.EXTRAORDINARY_REFUSAL.toString());
 
     Specification<Case> expectedSpecification = getSpecificationWithClassifiers();
 
@@ -132,7 +133,7 @@ public class CaseRepositoryIT {
     assertThat(cases.size()).isEqualTo(expectedUnreceiptedCaseSize);
   }
 
-  private void setupTestCases(int caseCount, boolean receipted, boolean refused) {
+  private void setupTestCases(int caseCount, boolean receipted, String refused) {
     List<Case> cases = new ArrayList<>();
 
     for (int i = 0; i < caseCount; i++) {
