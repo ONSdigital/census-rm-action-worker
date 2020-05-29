@@ -206,7 +206,7 @@ public class CaseRepositoryIT {
 
   private Specification<Case> excludeRefusedCases() {
     return (Specification<Case>)
-            (root, query, builder) -> builder.isNull(root.get("refusalReceived"));
+        (root, query, builder) -> builder.isNull(root.get("refusalReceived"));
   }
 
   private Specification<Case> isClassifierIn(
