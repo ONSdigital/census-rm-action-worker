@@ -107,7 +107,7 @@ public class CaseRepositoryIT {
 
   @Transactional
   @Test
-  public void shouldRetrieveSevenCasesWhenThreeRefusedAndWithoutClassifiers() {
+  public void shouldRetrieveSevenCasesWhenThreeExtraordinaryCasesRefusedAndWithoutClassifiers() {
     int expectedNotRefusedCaseSize = 7;
     setupTestCases(expectedNotRefusedCaseSize, false, null);
     setupTestCases(3, false, RefusalType.EXTRAORDINARY_REFUSAL.toString());
@@ -121,10 +121,38 @@ public class CaseRepositoryIT {
 
   @Transactional
   @Test
-  public void shouldRetrieveSevenCasesWhenThreeRefusedAndWithClassifiers() {
+  public void shouldRetrieveSevenCasesWhenThreeExtraordinaryCasesRefusedAndWithClassifiers() {
     int expectedUnreceiptedCaseSize = 7;
     setupTestCases(expectedUnreceiptedCaseSize, false, null);
     setupTestCases(3, false, RefusalType.EXTRAORDINARY_REFUSAL.toString());
+
+    Specification<Case> expectedSpecification = getSpecificationWithClassifiers();
+
+    List<Case> cases = caseRepository.findAll(expectedSpecification);
+
+    assertThat(cases.size()).isEqualTo(expectedUnreceiptedCaseSize);
+  }
+
+  @Transactional
+  @Test
+  public void shouldRetrieveSevenCasesWhenThreeHardCasesRefusedAndWithoutClassifiers() {
+    int expectedNotRefusedCaseSize = 7;
+    setupTestCases(expectedNotRefusedCaseSize, false, null);
+    setupTestCases(3, false, RefusalType.HARD_REFUSAL.toString());
+
+    Specification<Case> expectedSpecification = getSpecificationWithoutClassifiers();
+
+    List<Case> cases = caseRepository.findAll(expectedSpecification);
+
+    assertThat(cases.size()).isEqualTo(expectedNotRefusedCaseSize);
+  }
+
+  @Transactional
+  @Test
+  public void shouldRetrieveSevenCasesWhenThreeHardCasesRefusedAndWithClassifiers() {
+    int expectedUnreceiptedCaseSize = 7;
+    setupTestCases(expectedUnreceiptedCaseSize, false, null);
+    setupTestCases(3, false, RefusalType.HARD_REFUSAL.toString());
 
     Specification<Case> expectedSpecification = getSpecificationWithClassifiers();
 
@@ -178,7 +206,7 @@ public class CaseRepositoryIT {
 
   private Specification<Case> excludeRefusedCases() {
     return (Specification<Case>)
-        (root, query, builder) -> builder.equal(root.get("refusalReceived"), false);
+            (root, query, builder) -> builder.isNull(root.get("refusalReceived"));
   }
 
   private Specification<Case> isClassifierIn(
