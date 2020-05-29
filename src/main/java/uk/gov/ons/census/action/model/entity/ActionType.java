@@ -68,6 +68,8 @@ public enum ActionType {
 
   P_ER_IL(ActionHandler.PRINTER), // Information leaflet
 
+  P_UAC_IX(ActionHandler.PRINTER), // Individual response UAC print
+
   //  response driven interventions
   P_RD_2RL1_1(ActionHandler.PRINTER), // Response driven reminder group 1 English
   P_RD_2RL2B_1(ActionHandler.PRINTER), // Response driven reminder group 1 Welsh
