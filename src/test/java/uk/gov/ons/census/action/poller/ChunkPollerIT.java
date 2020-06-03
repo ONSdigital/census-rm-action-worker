@@ -415,7 +415,7 @@ public class ChunkPollerIT {
     Case randomCase = easyRandom.nextObject(Case.class);
     randomCase.setActionPlanId(actionPlan.getId().toString());
     randomCase.setReceiptReceived(false);
-    randomCase.setRefusalReceived(false);
+    randomCase.setRefusalReceived(null);
     randomCase.setAddressInvalid(false);
     randomCase.setTreatmentCode("HH_LF2R1E");
     randomCase.setCaseType("HH");
@@ -433,7 +433,7 @@ public class ChunkPollerIT {
     Case randomCase = easyRandom.nextObject(Case.class);
     randomCase.setActionPlanId(actionPlan.getId().toString());
     randomCase.setReceiptReceived(false);
-    randomCase.setRefusalReceived(false);
+    randomCase.setRefusalReceived(null);
     randomCase.setAddressInvalid(false);
     randomCase.setTreatmentCode("CE_QDIEW");
     randomCase.setCaseType("CE");
@@ -451,7 +451,7 @@ public class ChunkPollerIT {
     Case randomCase = easyRandom.nextObject(Case.class);
     randomCase.setActionPlanId(actionPlan.getId().toString());
     randomCase.setReceiptReceived(false);
-    randomCase.setRefusalReceived(false);
+    randomCase.setRefusalReceived(null);
     randomCase.setAddressInvalid(false);
     randomCase.setTreatmentCode("HH_LF2R1E");
     randomCase.setCaseType("HI");
