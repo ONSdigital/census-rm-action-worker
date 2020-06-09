@@ -108,7 +108,7 @@ public class Case {
   private CaseMetadata metadata;
 
   @Column private String printBatch;
-  
+
   @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
   private boolean surveyLaunched;
 }
