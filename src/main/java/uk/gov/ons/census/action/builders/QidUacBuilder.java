@@ -31,7 +31,11 @@ public class QidUacBuilder {
           ActionType.SPG_IC11,
           ActionType.SPG_IC12,
           ActionType.SPG_IC13,
-          ActionType.SPG_IC14);
+          ActionType.SPG_IC14,
+          ActionType.P_RL_1RL1A,
+          ActionType.P_RL_1RL2BA,
+          ActionType.P_RL_2RL1A,
+          ActionType.P_RL_2RL2BA);
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
 
