@@ -6,15 +6,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.ons.census.action.model.entity.CaseToProcess;
-import uk.gov.ons.census.action.model.entity.FulfilmentToSend;
+import uk.gov.ons.census.action.model.entity.FulfilmentToProcess;
 import uk.gov.ons.census.action.model.repository.CaseToProcessRepository;
-import uk.gov.ons.census.action.model.repository.FulfilmentToSendRepository;
+import uk.gov.ons.census.action.model.repository.FulfilmentToProcessRepository;
 
 @Component
 public class ChunkProcessor {
   private final CaseToProcessRepository caseToProcessRepository;
   private final CaseProcessor caseProcessor;
-  private final FulfilmentToSendRepository fulfilmentToSendRepository;
+  private final FulfilmentToProcessRepository fulfilmentToProcessRepository;
   private final FulfilmentProcessor fulfilmentProcessor;
 
   @Value("${scheduler.chunksize}")
@@ -23,11 +23,11 @@ public class ChunkProcessor {
   public ChunkProcessor(
       CaseToProcessRepository caseToProcessRepository,
       CaseProcessor caseProcessor,
-      FulfilmentToSendRepository fulfilmentToSendRepository,
+      FulfilmentToProcessRepository fulfilmentToProcessRepository,
       FulfilmentProcessor fulfilmentProcessor) {
     this.caseToProcessRepository = caseToProcessRepository;
     this.caseProcessor = caseProcessor;
-    this.fulfilmentToSendRepository = fulfilmentToSendRepository;
+    this.fulfilmentToProcessRepository = fulfilmentToProcessRepository;
     this.fulfilmentProcessor = fulfilmentProcessor;
   }
 
@@ -44,12 +44,12 @@ public class ChunkProcessor {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW) // Start a new transaction for every chunk
   public void processFulfilmentChunk() {
-    try (Stream<FulfilmentToSend> fulfilments =
-        fulfilmentToSendRepository.findChunkToProcess(chunkSize)) {
+    try (Stream<FulfilmentToProcess> fulfilments =
+        fulfilmentToProcessRepository.findChunkToProcess(chunkSize)) {
       fulfilments.forEach(
           fulfilmentsToSend -> {
             fulfilmentProcessor.process(fulfilmentsToSend);
-            fulfilmentToSendRepository.delete(
+            fulfilmentToProcessRepository.delete(
                 fulfilmentsToSend); // Delete the fulfilment from the 'queue'
           });
     }
@@ -62,7 +62,6 @@ public class ChunkProcessor {
 
   @Transactional
   public boolean isThereFulfilmentWorkToDo() {
-
-    return fulfilmentToSendRepository.count() > 0;
+    return fulfilmentToProcessRepository.count() > 0;
   }
 }

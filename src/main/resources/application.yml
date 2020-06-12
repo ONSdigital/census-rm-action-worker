@@ -37,8 +37,6 @@ spring:
         size: 2
 
 queueconfig:
-  inbound-queue: case.action
-  action-fulfilment-inbound-queue: action.fulfilment
   events-exchange: events
   outbound-printer-queue: Action.Printer
   outbound-field-queue: Action.Field
@@ -60,6 +58,16 @@ scheduler:
 caseapi:
   host: caseapi
   port: 8161
+
+uacservice:
+  connection:
+    scheme: http
+    host: localhost
+    port: 8164
+
+  uacqid-cache-min: 500
+  uacqid-fetch-count: 1000
+  uacqid-get-timeout: 5   #seconds
 
 messagelogging:
   logstacktraces: false
