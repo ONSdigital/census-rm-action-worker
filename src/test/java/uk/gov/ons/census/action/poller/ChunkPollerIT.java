@@ -52,12 +52,13 @@ import uk.gov.ons.census.action.model.repository.FulfilmentToProcessRepository;
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ChunkPollerIT {
-
   private static final String MULTIPLE_QIDS_URL = "/multiple_qids";
   private static final String OUTBOUND_PRINTER_QUEUE = "Action.Printer";
   private static final String OUTBOUND_FIELD_QUEUE = "Action.Field";
   private static final String ACTION_CASE_QUEUE = "action.events";
   private static final String CASE_UAC_QID_CREATED_QUEUE = "case.uac-qid-created";
+  private static final EasyRandom easyRandom = new EasyRandom();
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   @Autowired private RabbitQueueHelper rabbitQueueHelper;
   @Autowired private CaseRepository caseRepository;
@@ -65,10 +66,6 @@ public class ChunkPollerIT {
   @Autowired private ActionPlanRepository actionPlanRepository;
   @Autowired private CaseToProcessRepository caseToProcessRepository;
   @Autowired private FulfilmentToProcessRepository fulfilmentToProcessRepository;
-
-  private static final EasyRandom easyRandom = new EasyRandom();
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8089));
 
@@ -83,8 +80,6 @@ public class ChunkPollerIT {
     caseToProcessRepository.deleteAllInBatch();
     caseRepository.deleteAllInBatch();
     actionRuleRepository.deleteAllInBatch();
-    actionPlanRepository.deleteAll();
-    actionRuleRepository.deleteAll();
     actionPlanRepository.deleteAllInBatch();
   }
 

@@ -17,24 +17,24 @@ import uk.gov.ons.census.action.model.entity.UacQidLink;
 public class FulfilmentProcessor {
   private static final Map<String, Integer> fulfilmentCodeToQuestionnaireType =
       Map.ofEntries(
-          Map.entry("P_OR_H1", Integer.valueOf(1)),
-          Map.entry("P_UAC_UACHHP1", Integer.valueOf(1)),
-          Map.entry("P_OR_H2", Integer.valueOf(2)),
-          Map.entry("P_UAC_UACHHP2B", Integer.valueOf(2)),
-          Map.entry("P_OR_H2W", Integer.valueOf(3)),
-          Map.entry("P_UAC_UACHHP4", Integer.valueOf(4)),
-          Map.entry("P_OR_H4", Integer.valueOf(4)),
-          Map.entry("P_OR_HC1", Integer.valueOf(11)),
-          Map.entry("P_OR_HC2", Integer.valueOf(12)),
-          Map.entry("P_OR_HC2W", Integer.valueOf(13)),
-          Map.entry("P_OR_HC4", Integer.valueOf(14)),
-          Map.entry("P_OR_I1", Integer.valueOf(21)),
-          Map.entry("P_OR_I2", Integer.valueOf(22)),
-          Map.entry("P_OR_I2W", Integer.valueOf(23)),
-          Map.entry("P_OR_I4", Integer.valueOf(24)),
-          Map.entry("P_UAC_UACIP1", Integer.valueOf(21)),
-          Map.entry("P_UAC_UACIP2B", Integer.valueOf(22)),
-          Map.entry("P_UAC_UACIP4", Integer.valueOf(24)));
+          Map.entry("P_OR_H1", 1),
+          Map.entry("P_UAC_UACHHP1", 1),
+          Map.entry("P_OR_H2", 2),
+          Map.entry("P_UAC_UACHHP2B", 2),
+          Map.entry("P_OR_H2W", 3),
+          Map.entry("P_UAC_UACHHP4", 4),
+          Map.entry("P_OR_H4", 4),
+          Map.entry("P_OR_HC1", 11),
+          Map.entry("P_OR_HC2", 12),
+          Map.entry("P_OR_HC2W", 13),
+          Map.entry("P_OR_HC4", 14),
+          Map.entry("P_OR_I1", 21),
+          Map.entry("P_OR_I2", 22),
+          Map.entry("P_OR_I2W", 23),
+          Map.entry("P_OR_I4", 24),
+          Map.entry("P_UAC_UACIP1", 21),
+          Map.entry("P_UAC_UACIP2B", 22),
+          Map.entry("P_UAC_UACIP4", 24));
 
   private final RabbitTemplate rabbitTemplate;
   private final UacQidLinkBuilder uacQidLinkBuilder;
