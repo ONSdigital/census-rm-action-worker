@@ -1,13 +1,24 @@
 package uk.gov.ons.census.action.builders;
 
+import static uk.gov.ons.census.action.model.dto.EventType.RM_UAC_CREATED;
 import static uk.gov.ons.census.action.utility.ActionTypeHelper.isCeIndividualActionType;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import uk.gov.ons.census.action.client.CaseClient;
+import uk.gov.ons.census.action.cache.UacQidCache;
 import uk.gov.ons.census.action.model.UacQidTuple;
+import uk.gov.ons.census.action.model.dto.Event;
+import uk.gov.ons.census.action.model.dto.Payload;
+import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
+import uk.gov.ons.census.action.model.dto.UacQidCreated;
 import uk.gov.ons.census.action.model.dto.UacQidDTO;
 import uk.gov.ons.census.action.model.entity.ActionType;
 import uk.gov.ons.census.action.model.entity.Case;
@@ -15,7 +26,7 @@ import uk.gov.ons.census.action.model.entity.UacQidLink;
 import uk.gov.ons.census.action.model.repository.UacQidLinkRepository;
 
 @Component
-public class QidUacBuilder {
+public class UacQidLinkBuilder {
   private static final Set<ActionType> uacQidPreGeneratedActionTypes =
       Set.of(
           ActionType.ICHHQE,
@@ -49,23 +60,28 @@ public class QidUacBuilder {
   private static final String WALES_IN_WELSH_QUESTIONNAIRE_TYPE = "03";
   private static final String WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES = "22";
   private static final String WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES = "23";
-  private static final String UNKNOWN_COUNTRY_ERROR = "Unknown Country";
-  private static final String UNEXPECTED_CASE_TYPE_ERROR = "Unexpected Case Type";
   public static final String HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "HH_Q";
   public static final String CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "CE_Q";
   public static final String SPG_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "SPG_Q";
   public static final String WALES_TREATMENT_CODE_SUFFIX = "W";
 
   private final UacQidLinkRepository uacQidLinkRepository;
-  private final CaseClient caseClient;
+  private final UacQidCache uacQidCache;
+  private final RabbitTemplate rabbitTemplate;
+  private final String uacQidCreatedExchange;
 
-  public QidUacBuilder(UacQidLinkRepository uacQidLinkRepository, CaseClient caseClient) {
+  public UacQidLinkBuilder(
+      UacQidLinkRepository uacQidLinkRepository,
+      UacQidCache uacQidCache,
+      RabbitTemplate rabbitTemplate,
+      @Value("${queueconfig.uac-qid-created-exchange}") String uacQidCreatedExchange) {
     this.uacQidLinkRepository = uacQidLinkRepository;
-    this.caseClient = caseClient;
+    this.uacQidCache = uacQidCache;
+    this.rabbitTemplate = rabbitTemplate;
+    this.uacQidCreatedExchange = uacQidCreatedExchange;
   }
 
   public UacQidTuple getUacQidLinks(Case linkedCase, ActionType actionType) {
-
     if (isUacQidPreGeneratedActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
     } else if (isCeIndividualActionType(actionType)) {
@@ -75,6 +91,33 @@ public class QidUacBuilder {
     } else {
       return createNewUacQidPairsForAction(linkedCase, actionType);
     }
+  }
+
+  public UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType) {
+    UacQidDTO newUacQidPair = uacQidCache.getUacQidPair(Integer.parseInt(questionnaireType));
+    UacQidCreated uacQidCreated = new UacQidCreated();
+    uacQidCreated.setCaseId(linkedCase.getCaseId().toString());
+    uacQidCreated.setQid(newUacQidPair.getQid());
+    uacQidCreated.setUac(newUacQidPair.getUac());
+
+    Event event = new Event();
+    event.setType(RM_UAC_CREATED);
+    event.setDateTime(DateTimeFormatter.ISO_DATE_TIME.format(OffsetDateTime.now(ZoneId.of("UTC"))));
+    event.setTransactionId(UUID.randomUUID().toString());
+    ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
+    responseManagementEvent.setEvent(event);
+    Payload payload = new Payload();
+    payload.setUacQidCreated(uacQidCreated);
+    responseManagementEvent.setPayload(payload);
+
+    rabbitTemplate.convertAndSend(uacQidCreatedExchange, "", responseManagementEvent);
+
+    // Build a non-persisted object which can be used for processing
+    UacQidLink uacQidLink = new UacQidLink();
+    uacQidLink.setQid(newUacQidPair.getQid());
+    uacQidLink.setUac(newUacQidPair.getUac());
+    uacQidLink.setCaseId(linkedCase.getCaseId().toString());
+    return uacQidLink;
   }
 
   private UacQidTuple fetchExistingUacQidPairsForAction(Case linkedCase, ActionType actionType) {
@@ -158,17 +201,6 @@ public class QidUacBuilder {
 
   private UacQidTuple createNewUacQidPairsForAction(Case linkedCase, ActionType actionType) {
     return createNewUacQidPairsForAction(linkedCase, actionType, linkedCase.getAddressLevel());
-  }
-
-  private UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType) {
-    UacQidDTO newUacQidPair = caseClient.getUacQid(linkedCase.getCaseId(), questionnaireType);
-    UacQidLink newUacQidLink = new UacQidLink();
-    newUacQidLink.setCaseId(linkedCase.getCaseId().toString());
-    newUacQidLink.setQid(newUacQidPair.getQid());
-    newUacQidLink.setUac(newUacQidPair.getUac());
-    // Don't persist the new UAC QID link here, that is handled by our eventual consistency model in
-    // the API request
-    return newUacQidLink;
   }
 
   private boolean isQuestionnaireWelsh(String treatmentCode) {

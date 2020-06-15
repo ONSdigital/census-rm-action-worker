@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class ChunkProcessorTest {
   }
 
   @Test
-  public void testProcessFulfilmentChunk() throws IOException {
+  public void testProcessFulfilmentChunk() {
     // Given
     FulfilmentToProcess fulfilments = new FulfilmentToProcess();
     List<FulfilmentToProcess> fulfilementsToSendList = new LinkedList<>();

@@ -1,6 +1,5 @@
 package uk.gov.ons.census.action.poller;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.LinkedList;

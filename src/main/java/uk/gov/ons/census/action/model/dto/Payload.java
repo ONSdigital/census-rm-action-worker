@@ -6,4 +6,5 @@ import lombok.Data;
 public class Payload {
   private PrintCaseSelected printCaseSelected;
   private FieldCaseSelected fieldCaseSelected;
+  private UacQidCreated uacQidCreated;
 }

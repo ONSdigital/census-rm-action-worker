@@ -5,11 +5,13 @@ import java.util.Optional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import uk.gov.ons.census.action.cache.UacQidCache;
+import uk.gov.ons.census.action.builders.CaseSelectedBuilder;
+import uk.gov.ons.census.action.builders.UacQidLinkBuilder;
 import uk.gov.ons.census.action.model.dto.PrintFileDto;
-import uk.gov.ons.census.action.model.dto.UacQidDTO;
+import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.entity.ActionHandler;
 import uk.gov.ons.census.action.model.entity.FulfilmentToProcess;
+import uk.gov.ons.census.action.model.entity.UacQidLink;
 
 @Component
 public class FulfilmentProcessor {
@@ -35,18 +37,23 @@ public class FulfilmentProcessor {
           Map.entry("P_UAC_UACIP4", Integer.valueOf(24)));
 
   private final RabbitTemplate rabbitTemplate;
-  private final UacQidCache uacQidCache;
+  private final UacQidLinkBuilder uacQidLinkBuilder;
+  private final CaseSelectedBuilder caseSelectedBuilder;
+  private final String outboundExchange;
+  private final String actionCaseExchange;
 
-  public FulfilmentProcessor(RabbitTemplate rabbitTemplate, UacQidCache uacQidCache) {
+  public FulfilmentProcessor(
+      RabbitTemplate rabbitTemplate,
+      UacQidLinkBuilder uacQidLinkBuilder,
+      CaseSelectedBuilder caseSelectedBuilder,
+      @Value("${queueconfig.outbound-exchange}") String outboundExchange,
+      @Value("${queueconfig.action-case-exchange}") String actionCaseExchange) {
     this.rabbitTemplate = rabbitTemplate;
-    this.uacQidCache = uacQidCache;
+    this.uacQidLinkBuilder = uacQidLinkBuilder;
+    this.caseSelectedBuilder = caseSelectedBuilder;
+    this.outboundExchange = outboundExchange;
+    this.actionCaseExchange = actionCaseExchange;
   }
-
-  @Value("${queueconfig.outbound-exchange}")
-  private String outboundExchange;
-
-  @Value("${queueconfig.action-case-exchange}")
-  private String actionCaseExchange;
 
   public void process(FulfilmentToProcess fulfilmentToProcess) {
 
@@ -54,6 +61,15 @@ public class FulfilmentProcessor {
 
     rabbitTemplate.convertAndSend(
         outboundExchange, ActionHandler.PRINTER.getRoutingKey(), fulfilmentPrintFile);
+
+    ResponseManagementEvent printCaseSelected =
+        caseSelectedBuilder.buildPrintMessage(
+            fulfilmentToProcess.getBatchId(),
+            fulfilmentToProcess.getCaze().getCaseRef(),
+            fulfilmentToProcess.getFulfilmentCode(),
+            null);
+
+    rabbitTemplate.convertAndSend(actionCaseExchange, "", printCaseSelected);
   }
 
   private PrintFileDto buildPrintFileDto(FulfilmentToProcess fulfilmentToProcess) {
@@ -76,15 +92,19 @@ public class FulfilmentProcessor {
     fulfilmentPrintFile.setForename(fulfilmentToProcess.getForename());
     fulfilmentPrintFile.setSurname(fulfilmentToProcess.getSurname());
 
+    fulfilmentPrintFile.setOrganisationName(fulfilmentToProcess.getOrganisationName());
+    fulfilmentPrintFile.setFieldCoordinatorId(fulfilmentToProcess.getFieldCoordinatorId());
+    fulfilmentPrintFile.setFieldOfficerId(fulfilmentToProcess.getFieldOfficerId());
+
     Optional<Integer> questionnaireType =
         determineQuestionnaireType(fulfilmentToProcess.getFulfilmentCode());
 
     if (questionnaireType.isPresent()) {
-      UacQidDTO uacQid = uacQidCache.getUacQidPair(questionnaireType.get());
+      UacQidLink uacQid =
+          uacQidLinkBuilder.createNewUacQidPair(
+              fulfilmentToProcess.getCaze(), questionnaireType.get().toString());
       fulfilmentPrintFile.setQid(uacQid.getQid());
       fulfilmentPrintFile.setUac(uacQid.getUac());
-
-      // TODO: Tell Case Processor that we just linked a UAC-QID to a case
     }
 
     return fulfilmentPrintFile;

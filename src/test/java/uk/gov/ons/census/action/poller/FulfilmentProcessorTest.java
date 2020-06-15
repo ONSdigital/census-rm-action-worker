@@ -1,8 +1,11 @@
 package uk.gov.ons.census.action.poller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -10,49 +13,59 @@ import static org.mockito.Mockito.when;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import uk.gov.ons.census.action.cache.UacQidCache;
+import uk.gov.ons.census.action.builders.CaseSelectedBuilder;
+import uk.gov.ons.census.action.builders.UacQidLinkBuilder;
 import uk.gov.ons.census.action.model.dto.PrintFileDto;
-import uk.gov.ons.census.action.model.dto.UacQidDTO;
+import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.entity.ActionType;
+import uk.gov.ons.census.action.model.entity.Case;
 import uk.gov.ons.census.action.model.entity.FulfilmentToProcess;
+import uk.gov.ons.census.action.model.entity.UacQidLink;
 
-@RunWith(MockitoJUnitRunner.class)
 public class FulfilmentProcessorTest {
-
-  @Mock private RabbitTemplate rabbitTemplate;
-  @Mock private UacQidCache uacQidCache;
-
-  @InjectMocks private FulfilmentProcessor underTest;
-
-  @Value("${queueconfig.outbound-exchange}")
-  private String outboundExchange;
+  private String OUTBOUND_EXCHANGE = "test outbound exchange";
+  private String ACTION_CASE_EXCHANGE = "action case exchange";
 
   @Test
   public void testSendingFulfilments() {
+    // Given
+    RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
+    UacQidLinkBuilder uacQidLinkBuilder = mock(UacQidLinkBuilder.class);
+    CaseSelectedBuilder caseSelectedBuilder = mock(CaseSelectedBuilder.class);
+    FulfilmentProcessor underTest =
+        new FulfilmentProcessor(
+            rabbitTemplate,
+            uacQidLinkBuilder,
+            caseSelectedBuilder,
+            OUTBOUND_EXCHANGE,
+            ACTION_CASE_EXCHANGE);
+
     EasyRandom easyRandom = new EasyRandom();
     FulfilmentToProcess fulfilmentToProcess = easyRandom.nextObject(FulfilmentToProcess.class);
     fulfilmentToProcess.setFulfilmentCode("P_OR_H1");
     fulfilmentToProcess.setQuantity(8);
     fulfilmentToProcess.setBatchId(UUID.randomUUID());
 
-    UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
-    when(uacQidCache.getUacQidPair(anyInt())).thenReturn(uacQidDTO);
+    UacQidLink uacQidLink = easyRandom.nextObject(UacQidLink.class);
+    when(uacQidLinkBuilder.createNewUacQidPair(any(Case.class), anyString()))
+        .thenReturn(uacQidLink);
 
+    ResponseManagementEvent printMessage = easyRandom.nextObject(ResponseManagementEvent.class);
+    when(caseSelectedBuilder.buildPrintMessage(any(), anyLong(), any(), any()))
+        .thenReturn(printMessage);
+
+    // When
     underTest.process(fulfilmentToProcess);
 
+    // Then
     ArgumentCaptor<PrintFileDto> printFileDtoArgumentCaptor =
         ArgumentCaptor.forClass(PrintFileDto.class);
     verify(rabbitTemplate)
         .convertAndSend(
-            eq(outboundExchange),
-            eq(ActionType.ICL1E.getHandler().getRoutingKey()),
+            eq(OUTBOUND_EXCHANGE),
+            eq(ActionType.P_OR_HX.getHandler().getRoutingKey()),
             printFileDtoArgumentCaptor.capture());
 
     PrintFileDto printFileDto = printFileDtoArgumentCaptor.getValue();
@@ -66,18 +79,48 @@ public class FulfilmentProcessorTest {
             "townName",
             "title",
             "forename",
-            "surname");
+            "surname",
+            "fieldCoordinatorId",
+            "fieldOfficerId",
+            "organisationName");
 
     assertThat(printFileDto.getActionType()).isEqualTo(fulfilmentToProcess.getActionType().name());
     assertThat(printFileDto.getCaseRef()).isEqualTo(fulfilmentToProcess.getCaze().getCaseRef());
     assertThat(printFileDto.getPackCode()).isEqualTo(fulfilmentToProcess.getFulfilmentCode());
 
-    assertThat(printFileDto.getUac()).isEqualTo(uacQidDTO.getUac());
-    assertThat(printFileDto.getQid()).isEqualTo(uacQidDTO.getQid());
+    assertThat(printFileDto.getUac()).isEqualTo(uacQidLink.getUac());
+    assertThat(printFileDto.getQid()).isEqualTo(uacQidLink.getQid());
+
+    verify(caseSelectedBuilder)
+        .buildPrintMessage(
+            eq(fulfilmentToProcess.getBatchId()),
+            eq(fulfilmentToProcess.getCaze().getCaseRef()),
+            eq(fulfilmentToProcess.getFulfilmentCode()),
+            eq(null));
+
+    verify(caseSelectedBuilder)
+        .buildPrintMessage(
+            eq(fulfilmentToProcess.getBatchId()),
+            eq(fulfilmentToProcess.getCaze().getCaseRef()),
+            eq(fulfilmentToProcess.getFulfilmentCode()),
+            eq(null));
+    verify(rabbitTemplate).convertAndSend(eq(ACTION_CASE_EXCHANGE), eq(""), eq(printMessage));
   }
 
   @Test
   public void testSendingFulfilmentsNoUacQid() {
+    // Given
+    RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
+    UacQidLinkBuilder uacQidLinkBuilder = mock(UacQidLinkBuilder.class);
+    CaseSelectedBuilder caseSelectedBuilder = mock(CaseSelectedBuilder.class);
+    FulfilmentProcessor underTest =
+        new FulfilmentProcessor(
+            rabbitTemplate,
+            uacQidLinkBuilder,
+            caseSelectedBuilder,
+            OUTBOUND_EXCHANGE,
+            ACTION_CASE_EXCHANGE);
+
     EasyRandom easyRandom = new EasyRandom();
     FulfilmentToProcess fulfilmentToProcess = easyRandom.nextObject(FulfilmentToProcess.class);
     fulfilmentToProcess.setFulfilmentCode("this fulfilment code doesn't need a UAC QID innit");
@@ -90,7 +133,7 @@ public class FulfilmentProcessorTest {
         ArgumentCaptor.forClass(PrintFileDto.class);
     verify(rabbitTemplate)
         .convertAndSend(
-            eq(outboundExchange),
+            eq(OUTBOUND_EXCHANGE),
             eq(ActionType.ICL1E.getHandler().getRoutingKey()),
             printFileDtoArgumentCaptor.capture());
 
@@ -105,7 +148,10 @@ public class FulfilmentProcessorTest {
             "townName",
             "title",
             "forename",
-            "surname");
+            "surname",
+            "fieldCoordinatorId",
+            "fieldOfficerId",
+            "organisationName");
 
     assertThat(printFileDto.getActionType()).isEqualTo(fulfilmentToProcess.getActionType().name());
     assertThat(printFileDto.getCaseRef()).isEqualTo(fulfilmentToProcess.getCaze().getCaseRef());
@@ -114,6 +160,6 @@ public class FulfilmentProcessorTest {
     assertThat(printFileDto.getUac()).isNull();
     assertThat(printFileDto.getQid()).isNull();
 
-    verifyNoInteractions(uacQidCache);
+    verifyNoInteractions(uacQidLinkBuilder);
   }
 }
