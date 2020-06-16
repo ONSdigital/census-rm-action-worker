@@ -4,9 +4,6 @@ spring:
   rabbitmq:
     port: 35672
 
-scheduler:
-  frequency: 1000 #milliseconds
-
 uacservice:
   connection:
     port: 8089
