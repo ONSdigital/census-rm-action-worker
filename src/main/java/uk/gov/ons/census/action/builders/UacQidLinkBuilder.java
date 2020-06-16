@@ -114,9 +114,10 @@ public class UacQidLinkBuilder {
     payload.setUacQidCreated(uacQidCreated);
     responseManagementEvent.setPayload(payload);
 
+    // This message to Case Processor will ensure the UAC-QID is persisted: eventual consistency
     rabbitTemplate.convertAndSend(uacQidCreatedExchange, "", responseManagementEvent);
 
-    // Build a non-persisted object which can be used for processing
+    // Build a non-persisted object which can be used for immediate processing
     UacQidLink uacQidLink = new UacQidLink();
     uacQidLink.setQid(newUacQidPair.getQid());
     uacQidLink.setUac(newUacQidPair.getUac());
