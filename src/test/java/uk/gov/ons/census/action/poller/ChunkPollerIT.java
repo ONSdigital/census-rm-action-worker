@@ -1,12 +1,14 @@
 package uk.gov.ons.census.action.poller;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ons.census.action.model.entity.ActionType.P_OR_HX;
+import static uk.gov.ons.census.action.model.entity.ActionType.P_QU_H2;
 import static uk.gov.ons.census.action.model.entity.ActionType.P_RL_1RL1_1;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -88,7 +90,7 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid();
+      UacQidDTO uacQidDto = stubCreateUacQid("1");
       ActionPlan actionPlan = setUpActionPlan();
       ActionRule actionRule = setUpActionRule(P_RL_1RL1_1, actionPlan);
       Case randomCase = setUpCase(actionPlan, null);
@@ -156,6 +158,94 @@ public class ChunkPollerIT {
   }
 
   @Test
+  public void testWelshCaseToProcess() throws Exception {
+    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE);
+        QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
+        QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
+      // Given
+      UacQidDTO uacQidDto = stubCreateUacQid("2");
+      UacQidDTO welshUacQidDto = stubCreateUacQid("3");
+      ActionPlan actionPlan = setUpActionPlan();
+      ActionRule actionRule = setUpActionRule(P_QU_H2, actionPlan);
+      Case randomCase = setUpWelshCase(actionPlan, null);
+
+      CaseToProcess caseToProcess = new CaseToProcess();
+      caseToProcess.setActionRule(actionRule);
+      caseToProcess.setBatchId(UUID.randomUUID());
+      caseToProcess.setBatchQuantity(1);
+      caseToProcess.setCaze(randomCase);
+      caseToProcess = caseToProcessRepository.saveAndFlush(caseToProcess);
+
+      // When the case to process poller executes
+      String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      String actualActionToCaseMessage =
+          caseSelectedEventQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      String actualUacQidCreateMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      String actualUacQidCreateMessageWelsh =
+          uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+
+      // Then
+      assertThat(actualUacQidCreateMessage).isNotNull();
+      ResponseManagementEvent actualRmUacQidCreateEvent =
+          objectMapper.readValue(actualUacQidCreateMessage, ResponseManagementEvent.class);
+      assertThat(actualRmUacQidCreateEvent.getEvent().getType())
+          .isEqualTo(EventType.RM_UAC_CREATED);
+      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
+          .isEqualTo(randomCase.getCaseId().toString());
+      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
+          .isEqualTo(uacQidDto.getQid());
+      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
+          .isEqualTo(uacQidDto.getUac());
+      assertThat(actualUacQidCreateMessage).isNotNull();
+
+      ResponseManagementEvent actualRmUacQidCreateEventWelsh =
+          objectMapper.readValue(actualUacQidCreateMessageWelsh, ResponseManagementEvent.class);
+      assertThat(actualRmUacQidCreateEventWelsh.getEvent().getType())
+          .isEqualTo(EventType.RM_UAC_CREATED);
+      assertThat(actualRmUacQidCreateEventWelsh.getPayload().getUacQidCreated().getCaseId())
+          .isEqualTo(randomCase.getCaseId().toString());
+      assertThat(actualRmUacQidCreateEventWelsh.getPayload().getUacQidCreated().getQid())
+          .isEqualTo(welshUacQidDto.getQid());
+      assertThat(actualRmUacQidCreateEventWelsh.getPayload().getUacQidCreated().getUac())
+          .isEqualTo(welshUacQidDto.getUac());
+
+      assertThat(actualActionToCaseMessage).isNotNull();
+      ResponseManagementEvent actualRmEvent =
+          objectMapper.readValue(actualActionToCaseMessage, ResponseManagementEvent.class);
+      assertThat(actualRmEvent.getEvent().getType()).isEqualTo(EventType.PRINT_CASE_SELECTED);
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getCaseRef())
+          .isEqualTo(randomCase.getCaseRef());
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getActionRuleId())
+          .isEqualTo(actionRule.getId().toString());
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getPackCode())
+          .isEqualTo("P_QU_H2");
+
+      assertThat(actualMessage).isNotNull();
+      PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
+
+      assertThat(actualPrintFileDto.getActionType()).isEqualTo(P_QU_H2.name());
+      assertThat(actualPrintFileDto.getPackCode()).isEqualTo("P_QU_H2");
+      assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
+      assertThat(actualPrintFileDto)
+          .isEqualToIgnoringGivenFields(
+              randomCase,
+              "uac",
+              "qid",
+              "uacWales",
+              "qidWales",
+              "title",
+              "forename",
+              "surname",
+              "batchId",
+              "batchQuantity",
+              "packCode",
+              "actionType");
+      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(caseToProcess.getBatchId().toString());
+      assertThat(actualPrintFileDto.getBatchQuantity()).isEqualTo(caseToProcess.getBatchQuantity());
+    }
+  }
+
+  @Test
   public void testCaseToProcessForFieldworkFollowup() throws Exception {
     try (QueueSpy fieldQueue = rabbitQueueHelper.listen(OUTBOUND_FIELD_QUEUE);
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE)) {
@@ -202,7 +292,7 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid();
+      UacQidDTO uacQidDto = stubCreateUacQid("1");
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
       ActionRule actionRule = setUpActionRule(ActionType.CE_IC03, actionPlan);
@@ -278,7 +368,7 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid();
+      UacQidDTO uacQidDto = stubCreateUacQid("1");
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, null);
       FulfilmentToProcess fulfilmentToProcess = new FulfilmentToProcess();
@@ -356,13 +446,14 @@ public class ChunkPollerIT {
     }
   }
 
-  private UacQidDTO stubCreateUacQid() throws JsonProcessingException {
+  private UacQidDTO stubCreateUacQid(String questionnaireType) throws JsonProcessingException {
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     UacQidDTO[] uacQidDTOList = new UacQidDTO[1];
     uacQidDTOList[0] = uacQidDTO;
     String uacQidDtoJson = objectMapper.writeValueAsString(uacQidDTOList);
     stubFor(
         get(urlPathEqualTo(MULTIPLE_QIDS_URL))
+            .withQueryParam("questionnaireType", equalTo(questionnaireType))
             .willReturn(
                 aResponse()
                     .withStatus(HttpStatus.OK.value())
@@ -404,6 +495,23 @@ public class ChunkPollerIT {
     randomCase.setTreatmentCode("HH_LF2R1E");
     randomCase.setCaseType("HH");
     randomCase.setRegion("E1000");
+    randomCase.setFieldCoordinatorId("fieldCord1");
+    randomCase.setFieldOfficerId("MrFieldOfficer");
+    randomCase.setOrganisationName("Area51");
+    randomCase.setCeExpectedCapacity(ceExpectedCapacity);
+    randomCase.setSkeleton(false);
+    return caseRepository.saveAndFlush(randomCase);
+  }
+
+  private Case setUpWelshCase(ActionPlan actionPlan, Integer ceExpectedCapacity) {
+    Case randomCase = easyRandom.nextObject(Case.class);
+    randomCase.setActionPlanId(actionPlan.getId().toString());
+    randomCase.setReceiptReceived(false);
+    randomCase.setRefusalReceived(null);
+    randomCase.setAddressInvalid(false);
+    randomCase.setTreatmentCode("HH_LF2R1W");
+    randomCase.setCaseType("HH");
+    randomCase.setRegion("W1000");
     randomCase.setFieldCoordinatorId("fieldCord1");
     randomCase.setFieldOfficerId("MrFieldOfficer");
     randomCase.setOrganisationName("Area51");
