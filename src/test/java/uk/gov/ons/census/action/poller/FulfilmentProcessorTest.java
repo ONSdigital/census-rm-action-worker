@@ -91,12 +91,7 @@ public class FulfilmentProcessorTest {
     assertThat(printFileDto.getUac()).isEqualTo(uacQidLink.getUac());
     assertThat(printFileDto.getQid()).isEqualTo(uacQidLink.getQid());
 
-    verify(caseSelectedBuilder)
-        .buildPrintMessage(
-            eq(fulfilmentToProcess.getBatchId()),
-            eq(fulfilmentToProcess.getCaze().getCaseRef()),
-            eq(fulfilmentToProcess.getFulfilmentCode()),
-            eq(null));
+    verify(uacQidLinkBuilder).createNewUacQidPair(eq(fulfilmentToProcess.getCaze()), eq("1"));
 
     verify(caseSelectedBuilder)
         .buildPrintMessage(
