@@ -2,14 +2,12 @@ package uk.gov.ons.census.action.poller;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static junit.framework.TestCase.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ons.census.action.model.entity.ActionType.P_OR_HX;
+import static uk.gov.ons.census.action.model.entity.ActionType.P_RL_1RL1_1;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +38,7 @@ import uk.gov.ons.census.action.model.entity.ActionPlan;
 import uk.gov.ons.census.action.model.entity.ActionRule;
 import uk.gov.ons.census.action.model.entity.ActionType;
 import uk.gov.ons.census.action.model.entity.Case;
+import uk.gov.ons.census.action.model.entity.CaseToProcess;
 import uk.gov.ons.census.action.model.entity.FulfilmentToProcess;
 import uk.gov.ons.census.action.model.repository.ActionPlanRepository;
 import uk.gov.ons.census.action.model.repository.ActionRuleRepository;
@@ -84,24 +83,58 @@ public class ChunkPollerIT {
   }
 
   @Test
-  public void testReminderLetterActionCreatesNewUac() throws Exception {
-    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE)) {
+  public void testCaseToProcess() throws Exception {
+    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE);
+        QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
+        QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid();
-
       ActionPlan actionPlan = setUpActionPlan();
+      ActionRule actionRule = setUpActionRule(P_RL_1RL1_1, actionPlan);
       Case randomCase = setUpCase(actionPlan, null);
-      setUpActionRule(ActionType.P_RL_1RL1_1, actionPlan);
 
-      // When the action plan triggers
+      CaseToProcess caseToProcess = new CaseToProcess();
+      caseToProcess.setActionRule(actionRule);
+      caseToProcess.setBatchId(UUID.randomUUID());
+      caseToProcess.setBatchQuantity(1);
+      caseToProcess.setCaze(randomCase);
+      caseToProcess = caseToProcessRepository.saveAndFlush(caseToProcess);
+
+      // When the case to process poller executes
       String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      String actualActionToCaseMessage =
+          caseSelectedEventQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      String actualUacQidCreateMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
 
       // Then
+      assertThat(actualUacQidCreateMessage).isNotNull();
+      ResponseManagementEvent actualRmUacQidCreateEvent =
+          objectMapper.readValue(actualUacQidCreateMessage, ResponseManagementEvent.class);
+      assertThat(actualRmUacQidCreateEvent.getEvent().getType())
+          .isEqualTo(EventType.RM_UAC_CREATED);
+      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
+          .isEqualTo(randomCase.getCaseId().toString());
+      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
+          .isEqualTo(uacQidDto.getQid());
+      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
+          .isEqualTo(uacQidDto.getUac());
+
+      assertThat(actualActionToCaseMessage).isNotNull();
+      ResponseManagementEvent actualRmEvent =
+          objectMapper.readValue(actualActionToCaseMessage, ResponseManagementEvent.class);
+      assertThat(actualRmEvent.getEvent().getType()).isEqualTo(EventType.PRINT_CASE_SELECTED);
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getCaseRef())
+          .isEqualTo(randomCase.getCaseRef());
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getActionRuleId())
+          .isEqualTo(actionRule.getId().toString());
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getPackCode())
+          .isEqualTo("P_RL_1RL1_1");
+
       assertThat(actualMessage).isNotNull();
       PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
 
-      assertThat(actualPrintFileDto.getActionType()).isEqualTo(ActionType.P_RL_1RL1_1.name());
-      assertThat(actualPrintFileDto.getPackCode()).isEqualTo(ActionType.P_RL_1RL1_1.name());
+      assertThat(actualPrintFileDto.getActionType()).isEqualTo(P_RL_1RL1_1.name());
+      assertThat(actualPrintFileDto.getPackCode()).isEqualTo("P_RL_1RL1_1");
       assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
       assertThat(actualPrintFileDto)
           .isEqualToIgnoringGivenFields(
@@ -117,163 +150,33 @@ public class ChunkPollerIT {
               "batchQuantity",
               "packCode",
               "actionType");
+      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(caseToProcess.getBatchId().toString());
+      assertThat(actualPrintFileDto.getBatchQuantity()).isEqualTo(caseToProcess.getBatchQuantity());
     }
   }
 
   @Test
-  public void testReminderQuestionnaireActionCreatesNewUac() throws Exception {
-    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE)) {
-      // Given
-      UacQidDTO uacQidDto = stubCreateUacQid();
-      ActionPlan actionPlan = setUpActionPlan();
-      Case randomCase = setUpCase(actionPlan, null);
-      setUpActionRule(ActionType.P_QU_H1, actionPlan);
-
-      // When the action plan triggers
-      String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-
-      // Then
-      assertThat(actualMessage).isNotNull();
-      PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
-      verify(getRequestedFor(urlPathEqualTo(MULTIPLE_QIDS_URL)));
-
-      assertThat(actualPrintFileDto.getActionType()).isEqualTo(ActionType.P_QU_H1.name());
-      assertThat(actualPrintFileDto.getPackCode()).isEqualTo(ActionType.P_QU_H1.name());
-      assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
-      assertThat(actualPrintFileDto)
-          .isEqualToIgnoringGivenFields(
-              randomCase,
-              "uac",
-              "qid",
-              "uacWales",
-              "qidWales",
-              "title",
-              "forename",
-              "surname",
-              "batchId",
-              "batchQuantity",
-              "packCode",
-              "actionType");
-    }
-  }
-
-  @Test
-  public void testWelshReminderQuestionnaireActionCreates2NewUacs() throws Exception {
-    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE)) {
-      // Given
-      UacQidDTO uacQidDto = stubCreateUacQid();
-      UacQidDTO welshUacQidDto = uacQidDto;
-      ActionPlan actionPlan = setUpActionPlan();
-      Case randomCase = setUpCase(actionPlan, null);
-      setUpActionRule(ActionType.P_QU_H2, actionPlan);
-
-      // When the action plan triggers
-      String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-
-      // Then
-      assertThat(actualMessage).isNotNull();
-      PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
-
-      assertThat(actualPrintFileDto.getActionType()).isEqualTo(ActionType.P_QU_H2.name());
-      assertThat(actualPrintFileDto.getPackCode()).isEqualTo(ActionType.P_QU_H2.name());
-      assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
-      assertThat(actualPrintFileDto.getUacWales()).isEqualTo(welshUacQidDto.getUac());
-      assertThat(actualPrintFileDto.getQidWales()).isEqualTo(welshUacQidDto.getQid());
-      assertThat(actualPrintFileDto)
-          .isEqualToIgnoringGivenFields(
-              randomCase,
-              "uac",
-              "qid",
-              "uacWales",
-              "qidWales",
-              "title",
-              "forename",
-              "surname",
-              "batchId",
-              "batchQuantity",
-              "packCode",
-              "actionType");
-    }
-  }
-
-  @Test
-  public void testWelshCeInitialContactQuestionnaireActionCreates2NewUacs() throws Exception {
-    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE)) {
-      // Given
-      UacQidDTO uacQidDto = stubCreateUacQid();
-      UacQidDTO welshUacQidDto = uacQidDto;
-      ActionPlan actionPlan = setUpActionPlan();
-      Case randomCase = setUpCeEstabWalesCase(actionPlan, 1);
-      setUpActionRule(ActionType.CE_IC10, actionPlan);
-
-      // When the action plan triggers
-      String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-
-      // Then
-      assertThat(actualMessage).isNotNull();
-      PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
-
-      assertThat(actualPrintFileDto.getActionType()).isEqualTo(ActionType.CE_IC10.name());
-      assertThat(actualPrintFileDto.getPackCode()).isEqualTo(ActionType.CE_IC10.getPackCode());
-      assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
-      assertThat(actualPrintFileDto.getUacWales()).isEqualTo(welshUacQidDto.getUac());
-      assertThat(actualPrintFileDto.getQidWales()).isEqualTo(welshUacQidDto.getQid());
-      assertThat(actualPrintFileDto)
-          .isEqualToIgnoringGivenFields(
-              randomCase,
-              "uac",
-              "qid",
-              "uacWales",
-              "qidWales",
-              "title",
-              "forename",
-              "surname",
-              "batchId",
-              "batchQuantity",
-              "packCode",
-              "actionType");
-    }
-  }
-
-  @Test
-  public void testIndividualCaseReminderNotSent() throws Exception {
-    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE)) {
-      // Given we have an HI case with a valid Treatment Code.
-      ActionPlan actionPlan = setUpActionPlan();
-      setUpIndividualCase(actionPlan);
-      setUpActionRule(ActionType.P_QU_H2, actionPlan);
-
-      // When the action plan triggers
-      String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-
-      // Then
-      assertNull("Received Message for HI case, expected none", actualMessage);
-    }
-  }
-
-  @Test
-  public void testFieldworkActionRule() throws Exception {
+  public void testCaseToProcessForFieldworkFollowup() throws Exception {
     try (QueueSpy fieldQueue = rabbitQueueHelper.listen(OUTBOUND_FIELD_QUEUE);
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE)) {
       // Given
       ActionPlan actionPlan = setUpActionPlan();
+      ActionRule actionRule = setUpActionRule(ActionType.FIELD, actionPlan);
       Case randomCase = setUpCase(actionPlan, null);
 
-      ActionRule actionRule = setUpActionRule(ActionType.FIELD, actionPlan);
+      CaseToProcess caseToProcess = new CaseToProcess();
+      caseToProcess.setActionRule(actionRule);
+      caseToProcess.setBatchId(UUID.randomUUID());
+      caseToProcess.setBatchQuantity(1);
+      caseToProcess.setCaze(randomCase);
+      caseToProcessRepository.saveAndFlush(caseToProcess);
 
-      // When the action plan triggers
-      String actualMessage = fieldQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      // When the case to process poller executes
       String actualActionToCaseMessage =
           caseSelectedEventQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      String actualMessage = fieldQueue.getQueue().poll(20, TimeUnit.SECONDS);
 
       // Then
-      assertThat(actualMessage).isNotNull();
-      FieldworkFollowup actualFieldworkFollowup =
-          objectMapper.readValue(actualMessage, FieldworkFollowup.class);
-
-      assertThat(actualFieldworkFollowup.getCaseRef())
-          .isEqualTo(Long.toString(randomCase.getCaseRef()));
-
       assertThat(actualActionToCaseMessage).isNotNull();
       ResponseManagementEvent actualRmEvent =
           objectMapper.readValue(actualActionToCaseMessage, ResponseManagementEvent.class);
@@ -283,6 +186,10 @@ public class ChunkPollerIT {
       assertThat(actualRmEvent.getPayload().getFieldCaseSelected().getActionRuleId())
           .isEqualTo(actionRule.getId().toString());
 
+      FieldworkFollowup actualFieldworkFollowup =
+          objectMapper.readValue(actualMessage, FieldworkFollowup.class);
+      assertThat(actualFieldworkFollowup.getCaseRef())
+          .isEqualTo(Long.toString(randomCase.getCaseRef()));
       assertThat(actualFieldworkFollowup.getCeActualResponses())
           .isEqualTo(randomCase.getCeActualResponses());
       assertThat(actualFieldworkFollowup.getHandDelivery()).isEqualTo(randomCase.isHandDelivery());
@@ -290,29 +197,35 @@ public class ChunkPollerIT {
   }
 
   @Test
-  public void testCeEstabActionRule() throws Exception {
-    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE)) {
+  public void testCaseToProcessCeEstab() throws Exception {
+    try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE);
+        QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
+        QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid();
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
-      setUpActionRule(ActionType.CE_IC03, actionPlan);
-
-      // Force the action rule to trigger
+      ActionRule actionRule = setUpActionRule(ActionType.CE_IC03, actionPlan);
 
       // When the action plan triggers
-      List<String> actualMessages = new LinkedList<>();
+      List<String> actualPrintMessages = new LinkedList<>();
+      List<String> actualUacCreatedMessages = new LinkedList<>();
       for (int i = 0; i < 5; i++) {
-        String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-        assertThat(actualMessage).isNotNull();
-        actualMessages.add(actualMessage);
+        String actualPrintMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
+        String actualUacCreatedMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+        assertThat(actualPrintMessage).isNotNull();
+        actualPrintMessages.add(actualPrintMessage);
+        assertThat(actualUacCreatedMessage).isNotNull();
+        actualUacCreatedMessages.add(actualUacCreatedMessage);
       }
+      String actualCaseSelectedMessage =
+          caseSelectedEventQueue.getQueue().poll(20, TimeUnit.SECONDS);
 
       // Then
-      assertThat(actualMessages.size()).isEqualTo(5);
-
-      for (String actualMessage : actualMessages) {
-        PrintFileDto actualPrintFileDto = objectMapper.readValue(actualMessage, PrintFileDto.class);
+      assertThat(actualPrintMessages.size()).isEqualTo(5);
+      for (String actualPrintMessage : actualPrintMessages) {
+        PrintFileDto actualPrintFileDto =
+            objectMapper.readValue(actualPrintMessage, PrintFileDto.class);
         assertThat(actualPrintFileDto.getActionType()).isEqualTo(ActionType.CE_IC03.name());
         assertThat(actualPrintFileDto.getPackCode()).isEqualTo(ActionType.CE_IC03.getPackCode());
         assertThat(actualPrintFileDto).isEqualToComparingOnlyGivenFields(uacQidDto, "uac", "qid");
@@ -331,14 +244,39 @@ public class ChunkPollerIT {
                 "packCode",
                 "actionType");
       }
+
+      assertThat(actualCaseSelectedMessage).isNotNull();
+      ResponseManagementEvent actualRmEvent =
+          objectMapper.readValue(actualCaseSelectedMessage, ResponseManagementEvent.class);
+      assertThat(actualRmEvent.getEvent().getType()).isEqualTo(EventType.PRINT_CASE_SELECTED);
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getCaseRef())
+          .isEqualTo(randomCase.getCaseRef());
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getActionRuleId())
+          .isEqualTo(actionRule.getId().toString());
+      assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getPackCode())
+          .isEqualTo(ActionType.CE_IC03.getPackCode());
+
+      assertThat(actualUacCreatedMessages.size()).isEqualTo(5);
+      for (String actualUacCreatedMessage : actualUacCreatedMessages) {
+        ResponseManagementEvent actualRmUacQidCreateEvent =
+            objectMapper.readValue(actualUacCreatedMessage, ResponseManagementEvent.class);
+        assertThat(actualRmUacQidCreateEvent.getEvent().getType())
+            .isEqualTo(EventType.RM_UAC_CREATED);
+        assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
+            .isEqualTo(randomCase.getCaseId().toString());
+        assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
+            .isEqualTo(uacQidDto.getQid());
+        assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
+            .isEqualTo(uacQidDto.getUac());
+      }
     }
   }
 
   @Test
-  public void testFulfilment() throws Exception {
+  public void testFulfilmentToProcess() throws Exception {
     try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE);
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
-        QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE); ) {
+        QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid();
       ActionPlan actionPlan = setUpActionPlan();
@@ -362,7 +300,7 @@ public class ChunkPollerIT {
       fulfilmentToProcess.setQuantity(1);
       fulfilmentToProcess = fulfilmentToProcessRepository.saveAndFlush(fulfilmentToProcess);
 
-      // When the fulfilment poller executes
+      // When the fulfilment to process poller executes
       String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
       String actualActionToCaseMessage =
           caseSelectedEventQueue.getQueue().poll(20, TimeUnit.SECONDS);
@@ -439,8 +377,8 @@ public class ChunkPollerIT {
     actionPlan.setDescription("Test Reminder Letters");
     actionPlan.setName("Test Reminder Letters");
     actionPlan.setActionRules(null);
-    actionPlanRepository.saveAndFlush(actionPlan);
-    return actionPlan;
+
+    return actionPlanRepository.saveAndFlush(actionPlan);
   }
 
   private ActionRule setUpActionRule(ActionType actionType, ActionPlan actionPlan) {
@@ -454,8 +392,7 @@ public class ChunkPollerIT {
     Map<String, List<String>> classifiers = new HashMap<>();
     actionRule.setClassifiers(classifiers);
 
-    actionRuleRepository.saveAndFlush(actionRule);
-    return actionRule;
+    return actionRuleRepository.saveAndFlush(actionRule);
   }
 
   private Case setUpCase(ActionPlan actionPlan, Integer ceExpectedCapacity) {
@@ -472,36 +409,6 @@ public class ChunkPollerIT {
     randomCase.setOrganisationName("Area51");
     randomCase.setCeExpectedCapacity(ceExpectedCapacity);
     randomCase.setSkeleton(false);
-    caseRepository.saveAndFlush(randomCase);
-    return randomCase;
-  }
-
-  private Case setUpCeEstabWalesCase(ActionPlan actionPlan, Integer ceExpectedCapacity) {
-    Case randomCase = easyRandom.nextObject(Case.class);
-    randomCase.setActionPlanId(actionPlan.getId().toString());
-    randomCase.setReceiptReceived(false);
-    randomCase.setRefusalReceived(null);
-    randomCase.setAddressInvalid(false);
-    randomCase.setTreatmentCode("CE_QDIEW");
-    randomCase.setCaseType("CE");
-    randomCase.setRegion("W1000");
-    randomCase.setFieldCoordinatorId("fieldCord1");
-    randomCase.setFieldOfficerId("MrFieldOfficer");
-    randomCase.setOrganisationName("Area51");
-    randomCase.setCeExpectedCapacity(ceExpectedCapacity);
-    randomCase.setSkeleton(false);
-    caseRepository.saveAndFlush(randomCase);
-    return randomCase;
-  }
-
-  private void setUpIndividualCase(ActionPlan actionPlan) {
-    Case randomCase = easyRandom.nextObject(Case.class);
-    randomCase.setActionPlanId(actionPlan.getId().toString());
-    randomCase.setReceiptReceived(false);
-    randomCase.setRefusalReceived(null);
-    randomCase.setAddressInvalid(false);
-    randomCase.setTreatmentCode("HH_LF2R1E");
-    randomCase.setCaseType("HI");
-    caseRepository.saveAndFlush(randomCase);
+    return caseRepository.saveAndFlush(randomCase);
   }
 }
