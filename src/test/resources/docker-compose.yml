@@ -33,13 +33,10 @@ services:
       - "18301:8301"
     external_links:
       - postgres
-      - rabbitmq
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?sslmode=disable
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
     restart: always
     healthcheck:
       test: ["CMD", "find", "/tmp/action-scheduler-healthy", "-mmin", "-1"]
