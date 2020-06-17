@@ -90,7 +90,7 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid("1");
+      UacQidDTO uacQidDto = stubCreateUacQid(1);
       ActionPlan actionPlan = setUpActionPlan();
       ActionRule actionRule = setUpActionRule(P_RL_1RL1_1, actionPlan);
       Case randomCase = setUpCase(actionPlan, null);
@@ -163,8 +163,8 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid("2");
-      UacQidDTO welshUacQidDto = stubCreateUacQid("3");
+      UacQidDTO uacQidDto = stubCreateUacQid(2);
+      UacQidDTO welshUacQidDto = stubCreateUacQid(3);
       ActionPlan actionPlan = setUpActionPlan();
       ActionRule actionRule = setUpActionRule(P_QU_H2, actionPlan);
       Case randomCase = setUpWelshCase(actionPlan, null);
@@ -180,33 +180,34 @@ public class ChunkPollerIT {
       String actualMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
       String actualActionToCaseMessage =
           caseSelectedEventQueue.getQueue().poll(20, TimeUnit.SECONDS);
-      String actualUacQidCreateMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
-      String actualUacQidCreateMessageWelsh =
-          uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+      ResponseManagementEvent actualRmUacQidCreateEvent = null;
+      ResponseManagementEvent actualWelshRmUacQidCreateEvent = null;
+      for (int i = 0; i < 2; i++) {
+        String actualUacQidCreateMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+        ResponseManagementEvent actualRmEvent =
+            objectMapper.readValue(actualUacQidCreateMessage, ResponseManagementEvent.class);
+        assertThat(actualRmEvent.getEvent().getType()).isEqualTo(EventType.RM_UAC_CREATED);
+        assertThat(actualRmEvent.getPayload().getUacQidCreated().getCaseId())
+            .isEqualTo(randomCase.getCaseId().toString());
+
+        if (actualRmEvent.getPayload().getUacQidCreated().getQid().startsWith("02")) {
+          actualRmUacQidCreateEvent = actualRmEvent;
+        } else if (actualRmEvent.getPayload().getUacQidCreated().getQid().startsWith("03")) {
+          actualWelshRmUacQidCreateEvent = actualRmEvent;
+        }
+      }
 
       // Then
-      assertThat(actualUacQidCreateMessage).isNotNull();
-      ResponseManagementEvent actualRmUacQidCreateEvent =
-          objectMapper.readValue(actualUacQidCreateMessage, ResponseManagementEvent.class);
-      assertThat(actualRmUacQidCreateEvent.getEvent().getType())
-          .isEqualTo(EventType.RM_UAC_CREATED);
-      assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
-          .isEqualTo(randomCase.getCaseId().toString());
+      assertThat(actualRmUacQidCreateEvent).isNotNull();
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
           .isEqualTo(uacQidDto.getQid());
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
           .isEqualTo(uacQidDto.getUac());
-      assertThat(actualUacQidCreateMessage).isNotNull();
 
-      ResponseManagementEvent actualRmUacQidCreateEventWelsh =
-          objectMapper.readValue(actualUacQidCreateMessageWelsh, ResponseManagementEvent.class);
-      assertThat(actualRmUacQidCreateEventWelsh.getEvent().getType())
-          .isEqualTo(EventType.RM_UAC_CREATED);
-      assertThat(actualRmUacQidCreateEventWelsh.getPayload().getUacQidCreated().getCaseId())
-          .isEqualTo(randomCase.getCaseId().toString());
-      assertThat(actualRmUacQidCreateEventWelsh.getPayload().getUacQidCreated().getQid())
+      assertThat(actualWelshRmUacQidCreateEvent).isNotNull();
+      assertThat(actualWelshRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
           .isEqualTo(welshUacQidDto.getQid());
-      assertThat(actualRmUacQidCreateEventWelsh.getPayload().getUacQidCreated().getUac())
+      assertThat(actualWelshRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
           .isEqualTo(welshUacQidDto.getUac());
 
       assertThat(actualActionToCaseMessage).isNotNull();
@@ -292,7 +293,7 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid("1");
+      UacQidDTO uacQidDto = stubCreateUacQid(1);
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
       ActionRule actionRule = setUpActionRule(ActionType.CE_IC03, actionPlan);
@@ -368,7 +369,7 @@ public class ChunkPollerIT {
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
-      UacQidDTO uacQidDto = stubCreateUacQid("1");
+      UacQidDTO uacQidDto = stubCreateUacQid(1);
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, null);
       FulfilmentToProcess fulfilmentToProcess = new FulfilmentToProcess();
@@ -446,14 +447,15 @@ public class ChunkPollerIT {
     }
   }
 
-  private UacQidDTO stubCreateUacQid(String questionnaireType) throws JsonProcessingException {
+  private UacQidDTO stubCreateUacQid(int questionnaireType) throws JsonProcessingException {
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
+    uacQidDTO.setQid(String.format("%02d", questionnaireType) + uacQidDTO.getQid());
     UacQidDTO[] uacQidDTOList = new UacQidDTO[1];
     uacQidDTOList[0] = uacQidDTO;
     String uacQidDtoJson = objectMapper.writeValueAsString(uacQidDTOList);
     stubFor(
         get(urlPathEqualTo(MULTIPLE_QIDS_URL))
-            .withQueryParam("questionnaireType", equalTo(questionnaireType))
+            .withQueryParam("questionnaireType", equalTo(Integer.toString(questionnaireType)))
             .willReturn(
                 aResponse()
                     .withStatus(HttpStatus.OK.value())
