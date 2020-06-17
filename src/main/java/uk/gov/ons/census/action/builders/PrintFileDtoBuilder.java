@@ -9,16 +9,16 @@ import uk.gov.ons.census.action.model.entity.Case;
 
 @Component
 public class PrintFileDtoBuilder {
-  private final QidUacBuilder qidUacBuilder;
+  private final UacQidLinkBuilder uacQidLinkBuilder;
 
-  public PrintFileDtoBuilder(QidUacBuilder qidUacBuilder) {
-    this.qidUacBuilder = qidUacBuilder;
+  public PrintFileDtoBuilder(UacQidLinkBuilder uacQidLinkBuilder) {
+    this.uacQidLinkBuilder = uacQidLinkBuilder;
   }
 
   public PrintFileDto buildPrintFileDto(
       Case selectedCase, String packCode, UUID batchUUID, ActionType actionType) {
 
-    UacQidTuple uacQidTuple = qidUacBuilder.getUacQidLinks(selectedCase, actionType);
+    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType);
 
     PrintFileDto printFileDto = new PrintFileDto();
     printFileDto.setUac(uacQidTuple.getUacQidLink().getUac());

@@ -37,17 +37,12 @@ spring:
         size: 2
 
 queueconfig:
-  inbound-queue: case.action
-  action-fulfilment-inbound-queue: action.fulfilment
-  events-exchange: events
-  outbound-printer-queue: Action.Printer
-  outbound-field-queue: Action.Field
   outbound-exchange: action-outbound-exchange
   action-case-exchange: action-case-exchange
+  uac-qid-created-exchange: uac-qid-created-exchange
   consumers: 50
   retry-attempts: 3
   retry-delay: 1000 #milliseconds
-  quarantine-exchange: quarantineExchange
 
 healthcheck:
   frequency: 1000 #milliseconds
@@ -57,9 +52,15 @@ scheduler:
   frequency: 1000 #milliseconds
   chunksize: 1000
 
-caseapi:
-  host: caseapi
-  port: 8161
+uacservice:
+  connection:
+    scheme: http
+    host: localhost
+    port: 8164
+
+  uacqid-cache-min: 500
+  uacqid-fetch-count: 1000
+  uacqid-get-timeout: 5   #seconds
 
 messagelogging:
   logstacktraces: false
