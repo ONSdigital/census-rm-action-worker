@@ -4,15 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.ons.census.action.builders.QidUacBuilder.*;
+import static uk.gov.ons.census.action.builders.UacQidLinkBuilder.*;
 
 import java.util.*;
 import org.jeasy.random.EasyRandom;
 import org.junit.Test;
-import uk.gov.ons.census.action.client.CaseClient;
+import org.mockito.ArgumentCaptor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import uk.gov.ons.census.action.cache.UacQidCache;
 import uk.gov.ons.census.action.model.UacQidTuple;
+import uk.gov.ons.census.action.model.dto.EventType;
+import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
 import uk.gov.ons.census.action.model.dto.UacQidDTO;
 import uk.gov.ons.census.action.model.entity.ActionPlan;
 import uk.gov.ons.census.action.model.entity.ActionRule;
@@ -21,11 +26,16 @@ import uk.gov.ons.census.action.model.entity.Case;
 import uk.gov.ons.census.action.model.entity.UacQidLink;
 import uk.gov.ons.census.action.model.repository.UacQidLinkRepository;
 
-public class QidUacBuilderTest {
-  private final UacQidLinkRepository uacQidLinkRepository = mock(UacQidLinkRepository.class);
-  private final CaseClient caseClient = mock(CaseClient.class);
+public class UacQidLinkBuilderTest {
+  private static final String UAC_QID_CREATED_EXCHAGE = "test uac qid created exchange";
 
-  private final QidUacBuilder qidUacBuilder = new QidUacBuilder(uacQidLinkRepository, caseClient);
+  private final UacQidLinkRepository uacQidLinkRepository = mock(UacQidLinkRepository.class);
+  private final UacQidCache uacQidCache = mock(UacQidCache.class);
+  private final RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
+
+  private final UacQidLinkBuilder uacQidLinkBuilder =
+      new UacQidLinkBuilder(
+          uacQidLinkRepository, uacQidCache, rabbitTemplate, UAC_QID_CREATED_EXCHAGE);
 
   private static final String ENGLISH_QUESTIONNAIRE_TYPE = "01";
   private static final String WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE = "02";
@@ -66,7 +76,7 @@ public class QidUacBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // when
-    UacQidTuple uacQidTuple = qidUacBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
@@ -116,7 +126,7 @@ public class QidUacBuilderTest {
     UacQidDTO uacQidDTOWales = new UacQidDTO();
     uacQidDTOWales.setUac(uacWal);
     uacQidDTOWales.setQid(qidWal);
-    when(caseClient.getUacQid(any(UUID.class), anyString()))
+    when(uacQidCache.getUacQidPair(anyInt()))
         .thenReturn(uacQidDTOEngland)
         .thenReturn(uacQidDTOWales);
 
@@ -126,7 +136,7 @@ public class QidUacBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // when
-    UacQidTuple uacQidTuple = qidUacBuilder.getUacQidLinks(testCase, ActionType.SPG_IC14);
+    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.SPG_IC14);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
@@ -176,7 +186,7 @@ public class QidUacBuilderTest {
     UacQidDTO uacQidDTOWales = new UacQidDTO();
     uacQidDTOWales.setUac(uacWal);
     uacQidDTOWales.setQid(qidWal);
-    when(caseClient.getUacQid(any(UUID.class), anyString()))
+    when(uacQidCache.getUacQidPair(anyInt()))
         .thenReturn(uacQidDTOEngland)
         .thenReturn(uacQidDTOWales);
 
@@ -186,7 +196,7 @@ public class QidUacBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // when
-    UacQidTuple uacQidTuple = qidUacBuilder.getUacQidLinks(testCase, ActionType.CE_IC10);
+    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE_IC10);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
@@ -221,7 +231,7 @@ public class QidUacBuilderTest {
     testCase.setTreatmentCode("NotWelshTreatmentCode");
 
     // when
-    UacQidTuple uacQidTuple = qidUacBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
+    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
@@ -256,7 +266,7 @@ public class QidUacBuilderTest {
         .thenReturn(uacQidLinks);
 
     // When
-    qidUacBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     // Then
     // Exception thrown - expected
@@ -286,7 +296,7 @@ public class QidUacBuilderTest {
         .thenReturn(uacQidLinks);
 
     // When
-    qidUacBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     // Then
     // Exception thrown - The second welsh QID must have questionnaire type "03"
@@ -326,7 +336,7 @@ public class QidUacBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // When
-    qidUacBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     // Then
     // Exception thrown - expected
@@ -355,7 +365,7 @@ public class QidUacBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // When
-    qidUacBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     // Then
     // Exception thrown - expected
@@ -375,7 +385,7 @@ public class QidUacBuilderTest {
         .thenReturn(Collections.EMPTY_LIST);
 
     // When
-    qidUacBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
 
     // Then
     // Exception thrown - expected
@@ -411,7 +421,7 @@ public class QidUacBuilderTest {
         .thenReturn(uacQidLinks);
 
     // When
-    qidUacBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     // Then
     // Exception thrown - expected
@@ -426,18 +436,28 @@ public class QidUacBuilderTest {
     linkedCase.setCaseType("HH");
     linkedCase.setAddressLevel("U");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
-    when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(ENGLISH_QUESTIONNAIRE_TYPE)))
-        .thenReturn(uacQidDTO);
+    when(uacQidCache.getUacQidPair(anyInt())).thenReturn(uacQidDTO);
 
     // When
     UacQidTuple actualUacQidTuple =
-        qidUacBuilder.getUacQidLinks(linkedCase, ActionType.P_RL_1RL1_1);
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_RL_1RL1_1);
 
     // Then
-    verify(caseClient).getUacQid(eq(linkedCase.getCaseId()), eq(ENGLISH_QUESTIONNAIRE_TYPE));
+    verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(ENGLISH_QUESTIONNAIRE_TYPE)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
+        .isEqualTo(linkedCase.getCaseId().toString());
+
+    ArgumentCaptor<ResponseManagementEvent> rmEventArgCaptor =
+        ArgumentCaptor.forClass(ResponseManagementEvent.class);
+    verify(rabbitTemplate)
+        .convertAndSend(eq(UAC_QID_CREATED_EXCHAGE), eq(""), rmEventArgCaptor.capture());
+    ResponseManagementEvent rmEvent = rmEventArgCaptor.getValue();
+    assertThat(rmEvent.getEvent().getType()).isEqualTo(EventType.RM_UAC_CREATED);
+    assertThat(rmEvent.getPayload().getUacQidCreated().getQid()).isEqualTo(uacQidDTO.getQid());
+    assertThat(rmEvent.getPayload().getUacQidCreated().getUac()).isEqualTo(uacQidDTO.getUac());
+    assertThat(rmEvent.getPayload().getUacQidCreated().getCaseId())
         .isEqualTo(linkedCase.getCaseId().toString());
   }
 
@@ -450,17 +470,28 @@ public class QidUacBuilderTest {
     linkedCase.setCaseType("HH");
     linkedCase.setAddressLevel("U");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
-    when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(ENGLISH_QUESTIONNAIRE_TYPE)))
-        .thenReturn(uacQidDTO);
+    when(uacQidCache.getUacQidPair(anyInt())).thenReturn(uacQidDTO);
 
     // When
-    UacQidTuple actualUacQidTuple = qidUacBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H1);
+    UacQidTuple actualUacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H1);
 
     // Then
-    verify(caseClient).getUacQid(eq(linkedCase.getCaseId()), eq(ENGLISH_QUESTIONNAIRE_TYPE));
+    verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(ENGLISH_QUESTIONNAIRE_TYPE)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
+        .isEqualTo(linkedCase.getCaseId().toString());
+
+    ArgumentCaptor<ResponseManagementEvent> rmEventArgCaptor =
+        ArgumentCaptor.forClass(ResponseManagementEvent.class);
+    verify(rabbitTemplate)
+        .convertAndSend(eq(UAC_QID_CREATED_EXCHAGE), eq(""), rmEventArgCaptor.capture());
+    ResponseManagementEvent rmEvent = rmEventArgCaptor.getValue();
+    assertThat(rmEvent.getEvent().getType()).isEqualTo(EventType.RM_UAC_CREATED);
+    assertThat(rmEvent.getPayload().getUacQidCreated().getQid()).isEqualTo(uacQidDTO.getQid());
+    assertThat(rmEvent.getPayload().getUacQidCreated().getUac()).isEqualTo(uacQidDTO.getUac());
+    assertThat(rmEvent.getPayload().getUacQidCreated().getCaseId())
         .isEqualTo(linkedCase.getCaseId().toString());
   }
 
@@ -474,18 +505,18 @@ public class QidUacBuilderTest {
     linkedCase.setAddressLevel("U");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     UacQidDTO welshUacQidDTO = easyRandom.nextObject(UacQidDTO.class);
-    when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE)))
+    when(uacQidCache.getUacQidPair(eq(Integer.parseInt(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE))))
         .thenReturn(uacQidDTO);
-    when(caseClient.getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_WELSH_QUESTIONNAIRE_TYPE)))
+    when(uacQidCache.getUacQidPair(eq(Integer.parseInt(WALES_IN_WELSH_QUESTIONNAIRE_TYPE))))
         .thenReturn(welshUacQidDTO);
 
     // When
-    UacQidTuple actualUacQidTuple = qidUacBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H2);
+    UacQidTuple actualUacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H2);
 
     // Then
-    verify(caseClient)
-        .getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE));
-    verify(caseClient).getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_WELSH_QUESTIONNAIRE_TYPE));
+    verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE)));
+    verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
@@ -495,6 +526,9 @@ public class QidUacBuilderTest {
         .isEqualToComparingOnlyGivenFields(welshUacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLinkWales().get().getCaseId())
         .isEqualTo(linkedCase.getCaseId().toString());
+
+    verify(rabbitTemplate, times(2))
+        .convertAndSend(eq(UAC_QID_CREATED_EXCHAGE), eq(""), any(ResponseManagementEvent.class));
   }
 
   @Test
@@ -507,21 +541,22 @@ public class QidUacBuilderTest {
     linkedCase.setAddressLevel("E");
     UacQidDTO uacQidDTO = easyRandom.nextObject(UacQidDTO.class);
     UacQidDTO welshUacQidDTO = easyRandom.nextObject(UacQidDTO.class);
-    when(caseClient.getUacQid(
-            eq(linkedCase.getCaseId()), eq(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES)))
+    when(uacQidCache.getUacQidPair(
+            eq(Integer.parseInt(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES))))
         .thenReturn(uacQidDTO);
-    when(caseClient.getUacQid(
-            eq(linkedCase.getCaseId()), eq(WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES)))
+    when(uacQidCache.getUacQidPair(
+            eq(Integer.parseInt(WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES))))
         .thenReturn(welshUacQidDTO);
 
     // When
-    UacQidTuple actualUacQidTuple = qidUacBuilder.getUacQidLinks(linkedCase, ActionType.CE_IC10);
+    UacQidTuple actualUacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.CE_IC10);
 
     // Then
-    verify(caseClient)
-        .getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES));
-    verify(caseClient)
-        .getUacQid(eq(linkedCase.getCaseId()), eq(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES));
+    verify(uacQidCache)
+        .getUacQidPair(eq(Integer.parseInt(WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES)));
+    verify(uacQidCache)
+        .getUacQidPair(eq(Integer.parseInt(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
@@ -531,6 +566,9 @@ public class QidUacBuilderTest {
         .isEqualToComparingOnlyGivenFields(welshUacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLinkWales().get().getCaseId())
         .isEqualTo(linkedCase.getCaseId().toString());
+
+    verify(rabbitTemplate, times(2))
+        .convertAndSend(eq(UAC_QID_CREATED_EXCHAGE), eq(""), any(ResponseManagementEvent.class));
   }
 
   @Test
@@ -538,7 +576,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH", "E1000", "U");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("HH", "E1000", "U");
 
     // Then
     assertEquals("01", actualQuestionnaireType);
@@ -549,7 +588,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH", "W1000", "U");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("HH", "W1000", "U");
 
     // Then
     assertEquals("02", actualQuestionnaireType);
@@ -560,7 +600,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("HH", "N1000", "U");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("HH", "N1000", "U");
 
     // Then
     assertEquals("04", actualQuestionnaireType);
@@ -571,7 +612,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "E1000", "U");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("CE", "E1000", "U");
 
     // Then
     assertEquals("21", actualQuestionnaireType);
@@ -582,7 +624,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "W1000", "U");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("CE", "W1000", "U");
 
     // Then
     assertEquals("22", actualQuestionnaireType);
@@ -593,7 +636,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "N1000", "U");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("CE", "N1000", "U");
 
     // Then
     assertEquals("24", actualQuestionnaireType);
@@ -604,7 +648,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "E1000", "E");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("CE", "E1000", "E");
 
     // Then
     assertEquals("31", actualQuestionnaireType);
@@ -615,7 +660,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "W1000", "E");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("CE", "W1000", "E");
 
     // Then
     assertEquals("32", actualQuestionnaireType);
@@ -626,7 +672,8 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    String actualQuestionnaireType = QidUacBuilder.calculateQuestionnaireType("CE", "N1000", "E");
+    String actualQuestionnaireType =
+        UacQidLinkBuilder.calculateQuestionnaireType("CE", "N1000", "E");
 
     // Then
     assertEquals("34", actualQuestionnaireType);
@@ -637,7 +684,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    QidUacBuilder.calculateQuestionnaireType("CE", "Z1000", "U");
+    UacQidLinkBuilder.calculateQuestionnaireType("CE", "Z1000", "U");
 
     // Then
     // Exception thrown - expected
@@ -648,7 +695,7 @@ public class QidUacBuilderTest {
     // Given
 
     // When
-    QidUacBuilder.calculateQuestionnaireType("ZZ", "E1000", "U");
+    UacQidLinkBuilder.calculateQuestionnaireType("ZZ", "E1000", "U");
 
     // Then
     // Exception thrown - expected

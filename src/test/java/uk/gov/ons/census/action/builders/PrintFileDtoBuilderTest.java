@@ -41,7 +41,7 @@ public class PrintFileDtoBuilderTest {
     // Given
     EasyRandom easyRandom = new EasyRandom();
     Case testCaze = easyRandom.nextObject(Case.class);
-    QidUacBuilder uacQidBuilder = getQidUacBuilder();
+    UacQidLinkBuilder uacQidBuilder = getQidUacBuilder();
 
     PrintFileDto expectedPrintFileDto = getExpectedPrintFileDto(testCaze);
     PrintFileDtoBuilder printFileDtoBuilder = new PrintFileDtoBuilder(uacQidBuilder);
@@ -58,7 +58,7 @@ public class PrintFileDtoBuilderTest {
     assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);
   }
 
-  private QidUacBuilder getQidUacBuilder() {
+  private UacQidLinkBuilder getQidUacBuilder() {
     UacQidTuple uacQidTuple = new UacQidTuple();
     UacQidLink englishLink = new UacQidLink();
     englishLink.setUac(ENGLISH_UAC);
@@ -70,11 +70,11 @@ public class PrintFileDtoBuilderTest {
     welshLink.setQid(WELSH_QID);
     uacQidTuple.setUacQidLinkWales(Optional.of(welshLink));
 
-    QidUacBuilder qidUacBuilder = mock(QidUacBuilder.class);
-    when(qidUacBuilder.getUacQidLinks(any(Case.class), any(ActionType.class)))
+    UacQidLinkBuilder uacQidLinkBuilder = mock(UacQidLinkBuilder.class);
+    when(uacQidLinkBuilder.getUacQidLinks(any(Case.class), any(ActionType.class)))
         .thenReturn(uacQidTuple);
 
-    return qidUacBuilder;
+    return uacQidLinkBuilder;
   }
 
   private PrintFileDto getExpectedPrintFileDto(Case caze) {

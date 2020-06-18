@@ -88,6 +88,16 @@
       }
     },
     {
+      "name": "case.uac-qid-created",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "delayedRedeliveryExchange",
+        "x-dead-letter-routing-key": "case.uac-qid-created"
+      }
+    },
+    {
       "name": "delayedRedeliveryQueue",
       "vhost": "/",
       "durable": true,
@@ -119,6 +129,15 @@
     },
     {
       "name": "action-case-exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "uac-qid-created-exchange",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -159,6 +178,14 @@
       "destination": "Action.Printer",
       "destination_type": "queue",
       "routing_key": "Action.Printer.binding",
+      "arguments": {}
+    },
+    {
+      "source": "uac-qid-created-exchange",
+      "vhost": "/",
+      "destination": "case.uac-qid-created",
+      "destination_type": "queue",
+      "routing_key": "",
       "arguments": {}
     },
     {

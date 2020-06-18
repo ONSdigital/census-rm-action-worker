@@ -1,23 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:15432/postgres
+    url: jdbc:postgresql://localhost:15668/postgres
   rabbitmq:
-    port: 35672
+    port: 38672
 
-queueconfig:
-  action-case-queue: action.events
-
-iacservice:
+uacservice:
   connection:
-    port: 18121
-
-qid:
-  modulus: 1
-  factor: 1
-
-scheduler:
-  frequency: 1000 #milliseconds
-
-caseapi:
-  host: localhost
-  port: 8089
+    port: 8089

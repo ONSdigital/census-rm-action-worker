@@ -49,7 +49,7 @@ public class CaseSelectedBuilder {
     responseManagementEvent.setPayload(payload);
 
     event.setType(eventType);
-    event.setSource("ACTION_SCHEDULER");
+    event.setSource("ACTION_WORKER");
     event.setChannel("RM");
     event.setDateTime(DateTimeFormatter.ISO_DATE_TIME.format(OffsetDateTime.now(ZoneId.of("UTC"))));
     event.setTransactionId(UUID.randomUUID().toString());
