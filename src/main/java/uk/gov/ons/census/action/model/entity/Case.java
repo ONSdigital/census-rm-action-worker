@@ -1,19 +1,17 @@
 package uk.gov.ons.census.action.model.entity;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
-
 import lombok.Data;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-import org.hibernate.annotations.*;
 
 @Data
 @Entity
