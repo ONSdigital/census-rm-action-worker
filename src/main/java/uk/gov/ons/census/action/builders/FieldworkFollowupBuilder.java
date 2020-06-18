@@ -39,7 +39,7 @@ public class FieldworkFollowupBuilder {
     // TODO: set surveyName from the case
     followup.setSurveyName("CENSUS");
 
-    // Blank questionnaire followup is not handled with actions, always set it to false
+    // Blank questionnaire followup is not handled with actions, always set it to false here
     followup.setBlankQreReturned(false);
 
     return followup;
