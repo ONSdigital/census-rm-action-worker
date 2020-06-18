@@ -36,12 +36,11 @@ public class FieldworkFollowupBuilder {
     followup.setHandDelivery(caze.isHandDelivery());
     followup.setMetadata(caze.getMetadata());
 
-    // TODO: set surveyName, undeliveredAsAddress and blankQreReturned from caze
+    // TODO: set surveyName from the case
     followup.setSurveyName("CENSUS");
-    followup.setBlankQreReturned(false);
 
-    // TODO: ccsQuestionnaireUrl, ceDeliveryReqd,
-    // ceCE1Complete, ceActualResponses
+    // Blank questionnaire followup is not handled with actions, always set it to false
+    followup.setBlankQreReturned(false);
 
     return followup;
   }
