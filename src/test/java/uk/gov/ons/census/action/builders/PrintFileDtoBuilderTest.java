@@ -59,7 +59,8 @@ public class PrintFileDtoBuilderTest {
   }
 
   @Test
-  public void testResponseDrivenReminder() {
+  public void
+      testReminderWotDoesNotNeedNoUacQidPairBecauseTheRespondentHasLaunchedButNotSubmittedAndHasDefinitelyNotLostTheirOriginalInitialContactLetterProbably() {
     // Given
     EasyRandom easyRandom = new EasyRandom();
     Case testCaze = easyRandom.nextObject(Case.class);
@@ -101,10 +102,10 @@ public class PrintFileDtoBuilderTest {
   }
 
   private PrintFileDto getExpectedPrintFileDto(
-      Case caze, ActionType actionType, boolean isResponseDrivenReminder) {
+      Case caze, ActionType actionType, boolean isReminderWithoutUacQid) {
     PrintFileDto printFileDto = new PrintFileDto();
 
-    if (!isResponseDrivenReminder) {
+    if (!isReminderWithoutUacQid) {
       printFileDto.setUac(ENGLISH_UAC);
       printFileDto.setQid(ENGLISH_QID);
       printFileDto.setUacWales(WELSH_UAC);

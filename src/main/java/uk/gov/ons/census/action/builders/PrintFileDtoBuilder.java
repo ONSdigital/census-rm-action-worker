@@ -10,7 +10,7 @@ import uk.gov.ons.census.action.model.entity.Case;
 
 @Component
 public class PrintFileDtoBuilder {
-  private static final Set<ActionType> responseDrivenReminderActionTypes =
+  private static final Set<ActionType> doesNotRequireUacQidActionTypes =
       Set.of(
           ActionType.P_RL_1RL1A,
           ActionType.P_RL_1RL2BA,
@@ -29,8 +29,8 @@ public class PrintFileDtoBuilder {
 
     PrintFileDto printFileDto = new PrintFileDto();
 
-    // Response driven reminders don't need a UAC-QID pair
-    if (!responseDrivenReminderActionTypes.contains(actionType)) {
+    // "EQ launched but not submitted/completed" reminders don't need a UAC-QID pair
+    if (!doesNotRequireUacQidActionTypes.contains(actionType)) {
       UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType);
 
       printFileDto.setUac(uacQidTuple.getUacQidLink().getUac());
