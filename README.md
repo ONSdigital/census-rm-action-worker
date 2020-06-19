@@ -1,6 +1,6 @@
 # census-rm-action-worker
 [![Build Status](https://api.travis-ci.com/ONSdigital/census-rm-action-worker.svg?branch=master)](https://travis-ci.com/ONSdigital/census-rm-action-worker)
-
+ 
 # Overview
 The Action Worker is a horizontally scalable microservice which processes cases which have been chosen by an action rule to be sent to the printer or Fieldwork service.
 
