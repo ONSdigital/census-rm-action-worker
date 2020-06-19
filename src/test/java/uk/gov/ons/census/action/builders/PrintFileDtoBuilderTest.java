@@ -59,8 +59,7 @@ public class PrintFileDtoBuilderTest {
   }
 
   @Test
-  public void
-      testReminderWotDoesNotNeedNoUacQidPairBecauseTheRespondentHasLaunchedButNotSubmittedAndHasDefinitelyNotLostTheirOriginalInitialContactLetterProbably() {
+  public void testReminderForRespondentLaunchedEqButNotSubmittedHasNoUacQid() {
     // Given
     EasyRandom easyRandom = new EasyRandom();
     Case testCaze = easyRandom.nextObject(Case.class);

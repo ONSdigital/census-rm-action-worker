@@ -16,7 +16,8 @@ public class PrintFileDtoBuilder {
           ActionType.P_RL_1RL2BA,
           ActionType.P_RL_2RL1A,
           ActionType.P_RL_2RL2BA
-          // NO. DO NOT ADD ANYTHING TO THIS LIST. NOPE. NEVER.
+          // Adding to this list will result in no UAC being sent on the printed
+          // letter/questionnaire. Please be certain of what you're doing before adding to it.
           );
   private final UacQidLinkBuilder uacQidLinkBuilder;
 
@@ -29,7 +30,8 @@ public class PrintFileDtoBuilder {
 
     PrintFileDto printFileDto = new PrintFileDto();
 
-    // "EQ launched but not submitted/completed" reminders don't need a UAC-QID pair
+    // "EQ launched but not submitted/completed" reminders don't have a UAC-QID pair for security
+    // because the respondent has already partially filled in their EQ.
     if (!doesNotRequireUacQidActionTypes.contains(actionType)) {
       UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType);
 

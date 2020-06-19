@@ -43,7 +43,10 @@ public class UacQidLinkBuilder {
           ActionType.SPG_IC12,
           ActionType.SPG_IC13,
           ActionType.SPG_IC14
-          // NO. DO NOT ADD ANYTHING TO THIS LIST. NOPE. NEVER.
+          // This list is only for INITIAL CONTACT letters/questionnaires. You should only add to
+          // it if you are certain that you are adding some new initial contact printed materials
+          // which is unlikely. For security reasons, initial contact UACs should never be mailed
+          // out a second time, because some respondents will have partially completed their EQs.
           );
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
