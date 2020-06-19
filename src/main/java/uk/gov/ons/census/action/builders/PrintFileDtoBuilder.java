@@ -1,5 +1,6 @@
 package uk.gov.ons.census.action.builders;
 
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import uk.gov.ons.census.action.model.UacQidTuple;
@@ -9,6 +10,14 @@ import uk.gov.ons.census.action.model.entity.Case;
 
 @Component
 public class PrintFileDtoBuilder {
+  private static final Set<ActionType> responseDrivenReminderActionTypes =
+      Set.of(
+          ActionType.P_RL_1RL1A,
+          ActionType.P_RL_1RL2BA,
+          ActionType.P_RL_2RL1A,
+          ActionType.P_RL_2RL2BA
+          // NO. DO NOT ADD ANYTHING TO THIS LIST. NOPE. NEVER.
+          );
   private final UacQidLinkBuilder uacQidLinkBuilder;
 
   public PrintFileDtoBuilder(UacQidLinkBuilder uacQidLinkBuilder) {
@@ -18,15 +27,19 @@ public class PrintFileDtoBuilder {
   public PrintFileDto buildPrintFileDto(
       Case selectedCase, String packCode, UUID batchUUID, ActionType actionType) {
 
-    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType);
-
     PrintFileDto printFileDto = new PrintFileDto();
-    printFileDto.setUac(uacQidTuple.getUacQidLink().getUac());
-    printFileDto.setQid(uacQidTuple.getUacQidLink().getQid());
 
-    if (uacQidTuple.getUacQidLinkWales().isPresent()) {
-      printFileDto.setUacWales(uacQidTuple.getUacQidLinkWales().get().getUac());
-      printFileDto.setQidWales(uacQidTuple.getUacQidLinkWales().get().getQid());
+    // Response driven reminders don't need a UAC-QID pair
+    if (!responseDrivenReminderActionTypes.contains(actionType)) {
+      UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType);
+
+      printFileDto.setUac(uacQidTuple.getUacQidLink().getUac());
+      printFileDto.setQid(uacQidTuple.getUacQidLink().getQid());
+
+      if (uacQidTuple.getUacQidLinkWales().isPresent()) {
+        printFileDto.setUacWales(uacQidTuple.getUacQidLinkWales().get().getUac());
+        printFileDto.setQidWales(uacQidTuple.getUacQidLinkWales().get().getQid());
+      }
     }
 
     printFileDto.setCaseRef(selectedCase.getCaseRef());
