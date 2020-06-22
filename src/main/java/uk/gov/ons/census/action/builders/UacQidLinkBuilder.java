@@ -27,7 +27,7 @@ import uk.gov.ons.census.action.model.repository.UacQidLinkRepository;
 
 @Component
 public class UacQidLinkBuilder {
-  private static final Set<ActionType> uacQidPreGeneratedActionTypes =
+  private static final Set<ActionType> initialContactActionTypes =
       Set.of(
           ActionType.ICHHQE,
           ActionType.ICHHQW,
@@ -42,11 +42,12 @@ public class UacQidLinkBuilder {
           ActionType.SPG_IC11,
           ActionType.SPG_IC12,
           ActionType.SPG_IC13,
-          ActionType.SPG_IC14,
-          ActionType.P_RL_1RL1A,
-          ActionType.P_RL_1RL2BA,
-          ActionType.P_RL_2RL1A,
-          ActionType.P_RL_2RL2BA);
+          ActionType.SPG_IC14
+          // This list is only for INITIAL CONTACT letters/questionnaires. You should only add to
+          // it if you are certain that you are adding some new initial contact printed materials
+          // which is unlikely. For security reasons, initial contact UACs should never be mailed
+          // out a second time, because some respondents will have partially completed their EQs.
+          );
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
 
@@ -86,7 +87,7 @@ public class UacQidLinkBuilder {
   }
 
   public UacQidTuple getUacQidLinks(Case linkedCase, ActionType actionType) {
-    if (isUacQidPreGeneratedActionType(actionType)) {
+    if (isInitialContactActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
     } else if (isCeIndividualActionType(actionType)) {
       // We override the address level for these action types because we want to create individual
@@ -232,8 +233,8 @@ public class UacQidLinkBuilder {
         String.format("Can't find UAC QID '%s' for case", otherAllowableQuestionnaireType));
   }
 
-  private boolean isUacQidPreGeneratedActionType(ActionType actionType) {
-    return uacQidPreGeneratedActionTypes.contains(actionType);
+  private boolean isInitialContactActionType(ActionType actionType) {
+    return initialContactActionTypes.contains(actionType);
   }
 
   public static String calculateQuestionnaireType(
