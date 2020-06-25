@@ -7,7 +7,9 @@ public class ActionTypeHelper {
   private static final Set<ActionType> ceIndividualActionTypes =
       Set.of(
           ActionType.CE_IC03,
+          ActionType.CE_IC03_1,
           ActionType.CE_IC04,
+          ActionType.CE_IC04_1,
           ActionType.CE_IC05,
           ActionType.CE_IC06,
           ActionType.CE_IC08,
