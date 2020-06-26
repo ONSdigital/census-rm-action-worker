@@ -4,7 +4,7 @@ import java.util.Set;
 import uk.gov.ons.census.action.model.entity.ActionType;
 
 public class ActionTypeHelper {
-  private static final Set<ActionType> ceIndividualActionTypes =
+  private static final Set<ActionType> expectedCapacityActionTypes =
       Set.of(
           ActionType.CE_IC03,
           ActionType.CE_IC03_1,
@@ -16,7 +16,7 @@ public class ActionTypeHelper {
           ActionType.CE_IC09,
           ActionType.CE_IC10);
 
-  public static boolean isCeIndividualActionType(ActionType actionType) {
-    return ceIndividualActionTypes.contains(actionType);
+  public static boolean isExpectedCapacityActionType(ActionType actionType) {
+    return expectedCapacityActionTypes.contains(actionType);
   }
 }
