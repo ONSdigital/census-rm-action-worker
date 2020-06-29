@@ -55,14 +55,15 @@ public class UacQidCache {
 
       // Put the UAC-QID back into the cache if the transaction rolls back
       if (TransactionSynchronizationManager.isActualTransactionActive()) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-          @Override
-          public void afterCompletion(int status) {
-            if (status == STATUS_ROLLED_BACK) {
-              uacQidLinkQueueMap.get(questionnaireType).add(uacQidDTO);
-            }
-          }
-        });
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
+              @Override
+              public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                  uacQidLinkQueueMap.get(questionnaireType).add(uacQidDTO);
+                }
+              }
+            });
       }
 
       return uacQidDTO;
