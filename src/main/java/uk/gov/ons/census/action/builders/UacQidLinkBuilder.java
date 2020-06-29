@@ -42,12 +42,10 @@ public class UacQidLinkBuilder {
           ActionType.SPG_IC13,
           ActionType.SPG_IC14
           // This list is only for INITIAL CONTACT letters/questionnaires that are not part of
-          // expected capacity for
-          // the case. You should only add to it if you are certain that you are adding some new
-          // initial contact
-          // printed materials which is unlikely. For security reasons, initial contact UACs should
-          // never be mailed
-          // out a second time, because some respondents will have partially completed their EQs.
+          // expected capacity for the case. You should only add to it if you are certain that you
+          // are adding some new initial contact printed materials which is unlikely. For security
+          // reasons, initial contact UACs should never be mailed out a second time, because some
+          // respondents will have partially completed their EQs.
           );
 
   private static final String ADDRESS_LEVEL_ESTAB = "E";
