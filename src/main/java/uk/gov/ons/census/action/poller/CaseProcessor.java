@@ -1,6 +1,6 @@
 package uk.gov.ons.census.action.poller;
 
-import static uk.gov.ons.census.action.utility.ActionTypeHelper.isCeIndividualActionType;
+import static uk.gov.ons.census.action.utility.ActionTypeHelper.isExpectedCapacityActionType;
 
 import java.util.UUID;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -59,7 +59,7 @@ public class CaseProcessor {
 
     int numOfMessagesToSend = 1;
 
-    if (isCeIndividualActionType(triggeredActionRule.getActionType())) {
+    if (isExpectedCapacityActionType(triggeredActionRule.getActionType())) {
       numOfMessagesToSend = caseToProcess.getCeExpectedCapacity();
     }
     for (int i = 0; i < numOfMessagesToSend; i++) {
