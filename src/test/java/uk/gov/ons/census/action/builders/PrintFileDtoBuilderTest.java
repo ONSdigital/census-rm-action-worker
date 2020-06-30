@@ -43,7 +43,7 @@ public class PrintFileDtoBuilderTest {
     Case testCaze = easyRandom.nextObject(Case.class);
     UacQidLinkBuilder uacQidBuilder = getQidUacBuilder();
 
-    PrintFileDto expectedPrintFileDto = getExpectedPrintFileDto(testCaze);
+    PrintFileDto expectedPrintFileDto = getExpectedPrintFileDto(testCaze, ActionType.ICHHQW, false);
     PrintFileDtoBuilder printFileDtoBuilder = new PrintFileDtoBuilder(uacQidBuilder);
 
     // When
@@ -53,6 +53,29 @@ public class PrintFileDtoBuilderTest {
             actionTypeToPackCodeMap.get(expectedActionType),
             BATCH_UUID,
             ActionType.ICHHQW);
+
+    // Then
+    assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);
+  }
+
+  @Test
+  public void testReminderForRespondentLaunchedEqButNotSubmittedHasNoUacQid() {
+    // Given
+    EasyRandom easyRandom = new EasyRandom();
+    Case testCaze = easyRandom.nextObject(Case.class);
+    UacQidLinkBuilder uacQidBuilder = getQidUacBuilder();
+
+    PrintFileDto expectedPrintFileDto =
+        getExpectedPrintFileDto(testCaze, ActionType.P_RL_1RL1A, true);
+    PrintFileDtoBuilder printFileDtoBuilder = new PrintFileDtoBuilder(uacQidBuilder);
+
+    // When
+    PrintFileDto actualPrintFileDto =
+        printFileDtoBuilder.buildPrintFileDto(
+            testCaze,
+            actionTypeToPackCodeMap.get(expectedActionType),
+            BATCH_UUID,
+            ActionType.P_RL_1RL1A);
 
     // Then
     assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);
@@ -77,12 +100,16 @@ public class PrintFileDtoBuilderTest {
     return uacQidLinkBuilder;
   }
 
-  private PrintFileDto getExpectedPrintFileDto(Case caze) {
+  private PrintFileDto getExpectedPrintFileDto(
+      Case caze, ActionType actionType, boolean isReminderWithoutUacQid) {
     PrintFileDto printFileDto = new PrintFileDto();
-    printFileDto.setUac(ENGLISH_UAC);
-    printFileDto.setQid(ENGLISH_QID);
-    printFileDto.setUacWales(WELSH_UAC);
-    printFileDto.setQidWales(WELSH_QID);
+
+    if (!isReminderWithoutUacQid) {
+      printFileDto.setUac(ENGLISH_UAC);
+      printFileDto.setQid(ENGLISH_QID);
+      printFileDto.setUacWales(WELSH_UAC);
+      printFileDto.setQidWales(WELSH_QID);
+    }
 
     printFileDto.setCaseRef(caze.getCaseRef());
     printFileDto.setAddressLine1(caze.getAddressLine1());
@@ -93,7 +120,7 @@ public class PrintFileDtoBuilderTest {
 
     printFileDto.setBatchId(BATCH_UUID.toString());
     printFileDto.setPackCode(actionTypeToPackCodeMap.get(expectedActionType));
-    printFileDto.setActionType(ActionType.ICHHQW.toString());
+    printFileDto.setActionType(actionType.toString());
     printFileDto.setFieldCoordinatorId(caze.getFieldCoordinatorId());
     printFileDto.setFieldOfficerId(caze.getFieldOfficerId());
     printFileDto.setOrganisationName(caze.getOrganisationName());
