@@ -10,6 +10,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import uk.gov.ons.census.action.client.UacQidServiceClient;
 import uk.gov.ons.census.action.model.dto.UacQidDTO;
 
@@ -49,6 +51,19 @@ public class UacQidCache {
         // So check we get a non null result otherwise throw a RunTimeException to re-enqueue msg
         throw new RuntimeException(
             "Timeout getting UacQidDTO for questionnaireType :" + questionnaireType);
+      }
+
+      // Put the UAC-QID back into the cache if the transaction rolls back
+      if (TransactionSynchronizationManager.isActualTransactionActive()) {
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
+              @Override
+              public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                  uacQidLinkQueueMap.get(questionnaireType).add(uacQidDTO);
+                }
+              }
+            });
       }
 
       return uacQidDTO;
