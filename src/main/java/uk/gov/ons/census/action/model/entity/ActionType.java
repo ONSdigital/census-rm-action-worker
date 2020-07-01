@@ -71,10 +71,6 @@ public enum ActionType {
   P_RL_2RL2BA(ActionHandler.PRINTER),
 
   // Individual response reminders
-  // ATTENTION: these action types should never be processed by the action scheduler. The cases are
-  // the be selected manually. these types are exceptional in that they target HI cases. Action
-  // rules created for these action types must always have the 'has_triggered' flag set to 't' on
-  // creation so that the action scheduler does not attempt to trigger them itself.
   P_RL_1IRL1(ActionHandler.PRINTER),
   P_RL_1IRL2B(ActionHandler.PRINTER),
 
