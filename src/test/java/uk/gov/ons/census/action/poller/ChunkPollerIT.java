@@ -482,7 +482,7 @@ public class ChunkPollerIT {
     actionRule.setActionType(actionType);
     actionRule.setActionPlan(actionPlan);
 
-    actionRule.setUserDefinedWhereClause("");
+    actionRule.setUserDefinedWhereClause(" case_type != 'HI'");
 
     return actionRuleRepository.saveAndFlush(actionRule);
   }
