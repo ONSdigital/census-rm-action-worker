@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import lombok.Data;
 
@@ -26,6 +27,7 @@ public class ActionRule {
 
   @Column private Boolean hasTriggered;
 
-  @Column(nullable = false, length = 100000)
-  private String userDefinedWhereClause;
+  @Lob
+  @Column(nullable = false)
+  private String classifiersClause;
 }
