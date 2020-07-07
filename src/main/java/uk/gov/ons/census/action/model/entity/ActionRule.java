@@ -27,5 +27,5 @@ public class ActionRule {
   @Column private Boolean hasTriggered;
 
   @Column(nullable = false, length = 100000)
-  private String userDefinedWhereClause;
+  private String classifiersClause;
 }
