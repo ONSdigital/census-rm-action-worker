@@ -36,4 +36,8 @@ public class ActionRule {
   public void setClassifiersClause(String classifierClauseStr) {
     classifiersClause = classifierClauseStr.getBytes();
   }
+
+  public String getClassifiersClause() {
+    return new String(classifiersClause);
+  }
 }
