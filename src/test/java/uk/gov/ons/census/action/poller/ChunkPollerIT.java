@@ -482,8 +482,7 @@ public class ChunkPollerIT {
     actionRule.setActionType(actionType);
     actionRule.setActionPlan(actionPlan);
 
-    Map<String, List<String>> classifiers = new HashMap<>();
-    actionRule.setClassifiers(classifiers);
+    actionRule.setClassifiersClause(" case_type != 'HI'");
 
     return actionRuleRepository.saveAndFlush(actionRule);
   }
