@@ -115,7 +115,7 @@ public class ChunkPollerIT {
       assertThat(actualRmUacQidCreateEvent.getEvent().getType())
           .isEqualTo(EventType.RM_UAC_CREATED);
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
-          .isEqualTo(randomCase.getCaseId().toString());
+          .isEqualTo(randomCase.getCaseId());
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
           .isEqualTo(uacQidDto.getQid());
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
@@ -128,7 +128,7 @@ public class ChunkPollerIT {
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getCaseRef())
           .isEqualTo(randomCase.getCaseRef());
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getActionRuleId())
-          .isEqualTo(actionRule.getId().toString());
+          .isEqualTo(actionRule.getId());
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getPackCode())
           .isEqualTo("P_RL_1RL1_1");
 
@@ -188,7 +188,7 @@ public class ChunkPollerIT {
             objectMapper.readValue(actualUacQidCreateMessage, ResponseManagementEvent.class);
         assertThat(actualRmEvent.getEvent().getType()).isEqualTo(EventType.RM_UAC_CREATED);
         assertThat(actualRmEvent.getPayload().getUacQidCreated().getCaseId())
-            .isEqualTo(randomCase.getCaseId().toString());
+            .isEqualTo(randomCase.getCaseId());
 
         if (actualRmEvent.getPayload().getUacQidCreated().getQid().startsWith("02")) {
           actualRmUacQidCreateEvent = actualRmEvent;
@@ -217,7 +217,7 @@ public class ChunkPollerIT {
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getCaseRef())
           .isEqualTo(randomCase.getCaseRef());
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getActionRuleId())
-          .isEqualTo(actionRule.getId().toString());
+          .isEqualTo(actionRule.getId());
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getPackCode())
           .isEqualTo("P_QU_H2");
 
@@ -275,7 +275,7 @@ public class ChunkPollerIT {
       assertThat(actualRmEvent.getPayload().getFieldCaseSelected().getCaseRef())
           .isEqualTo(randomCase.getCaseRef());
       assertThat(actualRmEvent.getPayload().getFieldCaseSelected().getActionRuleId())
-          .isEqualTo(actionRule.getId().toString());
+          .isEqualTo(actionRule.getId());
 
       FieldworkFollowup actualFieldworkFollowup =
           objectMapper.readValue(actualMessage, FieldworkFollowup.class);
@@ -343,7 +343,7 @@ public class ChunkPollerIT {
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getCaseRef())
           .isEqualTo(randomCase.getCaseRef());
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getActionRuleId())
-          .isEqualTo(actionRule.getId().toString());
+          .isEqualTo(actionRule.getId());
       assertThat(actualRmEvent.getPayload().getPrintCaseSelected().getPackCode())
           .isEqualTo(ActionType.CE_IC03.getPackCode());
 
@@ -354,7 +354,7 @@ public class ChunkPollerIT {
         assertThat(actualRmUacQidCreateEvent.getEvent().getType())
             .isEqualTo(EventType.RM_UAC_CREATED);
         assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
-            .isEqualTo(randomCase.getCaseId().toString());
+            .isEqualTo(randomCase.getCaseId());
         assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
             .isEqualTo(uacQidDto.getQid());
         assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
@@ -404,7 +404,7 @@ public class ChunkPollerIT {
       assertThat(actualRmUacQidCreateEvent.getEvent().getType())
           .isEqualTo(EventType.RM_UAC_CREATED);
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getCaseId())
-          .isEqualTo(randomCase.getCaseId().toString());
+          .isEqualTo(randomCase.getCaseId());
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getQid())
           .isEqualTo(uacQidDto.getQid());
       assertThat(actualRmUacQidCreateEvent.getPayload().getUacQidCreated().getUac())
@@ -490,7 +490,7 @@ public class ChunkPollerIT {
 
   private Case setUpCase(ActionPlan actionPlan, Integer ceExpectedCapacity) {
     Case randomCase = easyRandom.nextObject(Case.class);
-    randomCase.setActionPlanId(actionPlan.getId().toString());
+    randomCase.setActionPlanId(actionPlan.getId());
     randomCase.setReceiptReceived(false);
     randomCase.setRefusalReceived(null);
     randomCase.setAddressInvalid(false);
@@ -507,7 +507,7 @@ public class ChunkPollerIT {
 
   private Case setUpWelshCase(ActionPlan actionPlan, Integer ceExpectedCapacity) {
     Case randomCase = easyRandom.nextObject(Case.class);
-    randomCase.setActionPlanId(actionPlan.getId().toString());
+    randomCase.setActionPlanId(actionPlan.getId());
     randomCase.setReceiptReceived(false);
     randomCase.setRefusalReceived(null);
     randomCase.setAddressInvalid(false);

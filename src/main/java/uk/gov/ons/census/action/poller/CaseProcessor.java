@@ -78,7 +78,7 @@ public class CaseProcessor {
             caseToProcess.getBatchId(),
             caseToProcess.getCaze().getCaseRef(),
             triggeredActionRule.getActionType().getPackCode(),
-            triggeredActionRule.getId().toString());
+            triggeredActionRule.getId());
 
     rabbitTemplate.convertAndSend(actionCaseExchange, "", printCaseSelected);
   }

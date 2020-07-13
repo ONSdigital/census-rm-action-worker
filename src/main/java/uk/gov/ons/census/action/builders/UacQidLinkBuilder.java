@@ -100,7 +100,7 @@ public class UacQidLinkBuilder {
   public UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType) {
     UacQidDTO newUacQidPair = uacQidCache.getUacQidPair(Integer.parseInt(questionnaireType));
     UacQidCreated uacQidCreated = new UacQidCreated();
-    uacQidCreated.setCaseId(linkedCase.getCaseId().toString());
+    uacQidCreated.setCaseId(linkedCase.getCaseId());
     uacQidCreated.setQid(newUacQidPair.getQid());
     uacQidCreated.setUac(newUacQidPair.getUac());
 
@@ -121,7 +121,7 @@ public class UacQidLinkBuilder {
     UacQidLink uacQidLink = new UacQidLink();
     uacQidLink.setQid(newUacQidPair.getQid());
     uacQidLink.setUac(newUacQidPair.getUac());
-    uacQidLink.setCaseId(linkedCase.getCaseId().toString());
+    uacQidLink.setCaseId(linkedCase.getCaseId());
     return uacQidLink;
   }
 
