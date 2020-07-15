@@ -67,8 +67,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode(
         HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
@@ -116,8 +115,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     UacQidDTO uacQidDTOEngland = new UacQidDTO();
     uacQidDTOEngland.setUac(uacEng);
@@ -176,8 +174,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     UacQidDTO uacQidDTOEngland = new UacQidDTO();
     uacQidDTOEngland.setUac(uacEng);
@@ -225,8 +222,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode("NotWelshTreatmentCode");
 
@@ -262,8 +258,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     // When
     uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
@@ -292,8 +287,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     // When
     uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
@@ -327,8 +321,7 @@ public class UacQidLinkBuilderTest {
     // add the 3rd and fatal Link
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode(
         HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
@@ -356,8 +349,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode(
         HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
@@ -381,7 +373,7 @@ public class UacQidLinkBuilderTest {
     Case testCase = easyRandom.nextObject(Case.class);
     testCase.setTreatmentCode("HH_QF2R1W");
 
-    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId().toString())))
+    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId())))
         .thenReturn(Collections.EMPTY_LIST);
 
     // When
@@ -417,8 +409,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId().toString())))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId()))).thenReturn(uacQidLinks);
 
     // When
     uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);

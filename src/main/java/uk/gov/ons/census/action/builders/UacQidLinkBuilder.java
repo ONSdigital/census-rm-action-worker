@@ -126,7 +126,7 @@ public class UacQidLinkBuilder {
   }
 
   private UacQidTuple fetchExistingUacQidPairsForAction(Case linkedCase, ActionType actionType) {
-    String caseId = linkedCase.getCaseId().toString();
+    UUID caseId = linkedCase.getCaseId();
 
     List<UacQidLink> uacQidLinks = uacQidLinkRepository.findByCaseId(caseId);
 
