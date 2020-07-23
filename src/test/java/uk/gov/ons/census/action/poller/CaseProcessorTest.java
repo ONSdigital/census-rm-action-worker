@@ -65,7 +65,7 @@ public class CaseProcessorTest {
     when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any()))
         .thenReturn(printFileDto);
     when(caseSelectedBuilder.buildPrintMessage(
-            any(UUID.class), anyLong(), anyString(), anyString()))
+            any(UUID.class), anyLong(), anyString(), any(UUID.class)))
         .thenReturn(responseManagementEvent);
 
     // When
@@ -80,7 +80,7 @@ public class CaseProcessorTest {
             eq(caseToProcess.getBatchId()),
             eq(caseToProcess.getCaze().getCaseRef()),
             eq(printFileDto.getPackCode()),
-            eq(actionRule.getId().toString()));
+            eq(actionRule.getId()));
     verify(rabbitTemplate)
         .convertAndSend(
             eq(outboundExchange),
@@ -111,7 +111,7 @@ public class CaseProcessorTest {
     when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any()))
         .thenReturn(printFileDto);
     when(caseSelectedBuilder.buildPrintMessage(
-            any(UUID.class), anyLong(), anyString(), anyString()))
+            any(UUID.class), anyLong(), anyString(), any(UUID.class)))
         .thenReturn(responseManagementEvent);
 
     // When
@@ -126,7 +126,7 @@ public class CaseProcessorTest {
             eq(caseToProcess.getBatchId()),
             eq(caseToProcess.getCaze().getCaseRef()),
             eq(printFileDto.getPackCode()),
-            eq(actionRule.getId().toString()));
+            eq(actionRule.getId()));
     verify(rabbitTemplate, times(5))
         .convertAndSend(
             eq(outboundExchange),

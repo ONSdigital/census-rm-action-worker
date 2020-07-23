@@ -56,19 +56,18 @@ public class UacQidLinkBuilderTest {
 
     List<UacQidLink> uacQidLinks = new ArrayList<>();
     UacQidLink uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacEng);
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
     uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacWal);
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode(
         HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
@@ -79,13 +78,13 @@ public class UacQidLinkBuilderTest {
     UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
-    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
     assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
 
     UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
-    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
     assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
     assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
@@ -105,19 +104,18 @@ public class UacQidLinkBuilderTest {
 
     List<UacQidLink> uacQidLinks = new ArrayList<>();
     UacQidLink uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacEng);
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
     uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacWal);
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     UacQidDTO uacQidDTOEngland = new UacQidDTO();
     uacQidDTOEngland.setUac(uacEng);
@@ -139,13 +137,13 @@ public class UacQidLinkBuilderTest {
     UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.SPG_IC14);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
-    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
     assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
 
     UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
-    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
     assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
     assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
@@ -165,19 +163,18 @@ public class UacQidLinkBuilderTest {
 
     List<UacQidLink> uacQidLinks = new ArrayList<>();
     UacQidLink uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacEng);
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
     uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacWal);
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     UacQidDTO uacQidDTOEngland = new UacQidDTO();
     uacQidDTOEngland.setUac(uacEng);
@@ -199,13 +196,13 @@ public class UacQidLinkBuilderTest {
     UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE_IC10);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
-    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
     assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
 
     UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
-    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
     assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
     assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
@@ -220,13 +217,12 @@ public class UacQidLinkBuilderTest {
 
     List<UacQidLink> uacQidLinks = new ArrayList<>();
     UacQidLink uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacEng);
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode("NotWelshTreatmentCode");
 
@@ -234,7 +230,7 @@ public class UacQidLinkBuilderTest {
     UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
-    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId().toString());
+    assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
     assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
@@ -262,8 +258,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     // When
     uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
@@ -292,8 +287,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     // When
     uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
@@ -313,13 +307,13 @@ public class UacQidLinkBuilderTest {
 
     List<UacQidLink> uacQidLinks = new ArrayList<>();
     UacQidLink uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacEng);
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
     uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacWal);
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
@@ -327,8 +321,7 @@ public class UacQidLinkBuilderTest {
     // add the 3rd and fatal Link
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode(
         HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
@@ -351,13 +344,12 @@ public class UacQidLinkBuilderTest {
 
     List<UacQidLink> uacQidLinks = new ArrayList<>();
     UacQidLink uacQidLink = new UacQidLink();
-    uacQidLink.setCaseId(testCase.getCaseId().toString());
+    uacQidLink.setCaseId(testCase.getCaseId());
     uacQidLink.setUac(uacEng);
     uacQidLink.setQid(qidEng);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId().toString()))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     testCase.setTreatmentCode(
         HOUSEHOLD_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX
@@ -381,7 +373,7 @@ public class UacQidLinkBuilderTest {
     Case testCase = easyRandom.nextObject(Case.class);
     testCase.setTreatmentCode("HH_QF2R1W");
 
-    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId().toString())))
+    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId())))
         .thenReturn(Collections.EMPTY_LIST);
 
     // When
@@ -417,8 +409,7 @@ public class UacQidLinkBuilderTest {
     uacQidLink.setQid(qidWal);
     uacQidLinks.add(uacQidLink);
 
-    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId().toString())))
-        .thenReturn(uacQidLinks);
+    when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId()))).thenReturn(uacQidLinks);
 
     // When
     uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
@@ -446,8 +437,7 @@ public class UacQidLinkBuilderTest {
     verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(ENGLISH_QUESTIONNAIRE_TYPE)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
-    assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+    assertThat(actualUacQidTuple.getUacQidLink().getCaseId()).isEqualTo(linkedCase.getCaseId());
 
     ArgumentCaptor<ResponseManagementEvent> rmEventArgCaptor =
         ArgumentCaptor.forClass(ResponseManagementEvent.class);
@@ -458,7 +448,7 @@ public class UacQidLinkBuilderTest {
     assertThat(rmEvent.getPayload().getUacQidCreated().getQid()).isEqualTo(uacQidDTO.getQid());
     assertThat(rmEvent.getPayload().getUacQidCreated().getUac()).isEqualTo(uacQidDTO.getUac());
     assertThat(rmEvent.getPayload().getUacQidCreated().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+        .isEqualTo(linkedCase.getCaseId());
   }
 
   @Test
@@ -480,8 +470,7 @@ public class UacQidLinkBuilderTest {
     verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(ENGLISH_QUESTIONNAIRE_TYPE)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
-    assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+    assertThat(actualUacQidTuple.getUacQidLink().getCaseId()).isEqualTo(linkedCase.getCaseId());
 
     ArgumentCaptor<ResponseManagementEvent> rmEventArgCaptor =
         ArgumentCaptor.forClass(ResponseManagementEvent.class);
@@ -492,7 +481,7 @@ public class UacQidLinkBuilderTest {
     assertThat(rmEvent.getPayload().getUacQidCreated().getQid()).isEqualTo(uacQidDTO.getQid());
     assertThat(rmEvent.getPayload().getUacQidCreated().getUac()).isEqualTo(uacQidDTO.getUac());
     assertThat(rmEvent.getPayload().getUacQidCreated().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+        .isEqualTo(linkedCase.getCaseId());
   }
 
   @Test
@@ -519,13 +508,12 @@ public class UacQidLinkBuilderTest {
     verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
-    assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+    assertThat(actualUacQidTuple.getUacQidLink().getCaseId()).isEqualTo(linkedCase.getCaseId());
     assertThat(actualUacQidTuple.getUacQidLinkWales().isPresent()).isTrue();
     assertThat(actualUacQidTuple.getUacQidLinkWales().get())
         .isEqualToComparingOnlyGivenFields(welshUacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLinkWales().get().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+        .isEqualTo(linkedCase.getCaseId());
 
     verify(rabbitTemplate, times(2))
         .convertAndSend(eq(UAC_QID_CREATED_EXCHAGE), eq(""), any(ResponseManagementEvent.class));
@@ -559,13 +547,12 @@ public class UacQidLinkBuilderTest {
         .getUacQidPair(eq(Integer.parseInt(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE_CE_CASES)));
     assertThat(actualUacQidTuple.getUacQidLink())
         .isEqualToComparingOnlyGivenFields(uacQidDTO, "uac", "qid");
-    assertThat(actualUacQidTuple.getUacQidLink().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+    assertThat(actualUacQidTuple.getUacQidLink().getCaseId()).isEqualTo(linkedCase.getCaseId());
     assertThat(actualUacQidTuple.getUacQidLinkWales().isPresent()).isTrue();
     assertThat(actualUacQidTuple.getUacQidLinkWales().get())
         .isEqualToComparingOnlyGivenFields(welshUacQidDTO, "uac", "qid");
     assertThat(actualUacQidTuple.getUacQidLinkWales().get().getCaseId())
-        .isEqualTo(linkedCase.getCaseId().toString());
+        .isEqualTo(linkedCase.getCaseId());
 
     verify(rabbitTemplate, times(2))
         .convertAndSend(eq(UAC_QID_CREATED_EXCHAGE), eq(""), any(ResponseManagementEvent.class));
