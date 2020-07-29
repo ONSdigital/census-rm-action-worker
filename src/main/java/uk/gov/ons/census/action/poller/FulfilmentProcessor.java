@@ -34,7 +34,12 @@ public class FulfilmentProcessor {
           Map.entry("P_OR_I4", 24),
           Map.entry("P_UAC_UACIP1", 21),
           Map.entry("P_UAC_UACIP2B", 22),
-          Map.entry("P_UAC_UACIP4", 24));
+          Map.entry("P_UAC_UACIP4", 24),
+          Map.entry("P_UAC_UACIPA1", 21),
+          Map.entry("P_UAC_UACIPA2B", 22),
+          Map.entry("P_UAC_UACIPA4", 24),
+          Map.entry("P_UAC_UACCEP1", 31),
+          Map.entry("P_UAC_UACCEP2B", 32));
 
   private final RabbitTemplate rabbitTemplate;
   private final UacQidLinkBuilder uacQidLinkBuilder;
