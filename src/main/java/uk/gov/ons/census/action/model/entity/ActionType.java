@@ -91,6 +91,8 @@ public enum ActionType {
 
   P_UAC_IX(ActionHandler.PRINTER), // Individual response UAC print
 
+  P_UAC_CX(ActionHandler.PRINTER), // CE UAC via paper
+
   P_ER_IL(ActionHandler.PRINTER); // Information leaflet
 
   private final ActionHandler handler;
