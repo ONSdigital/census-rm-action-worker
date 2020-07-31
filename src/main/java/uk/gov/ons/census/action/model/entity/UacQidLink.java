@@ -18,7 +18,7 @@ public class UacQidLink {
 
   @Column private String uac;
 
-  @Column private String caseId;
+  @Column private UUID caseId;
 
   @Column private boolean active;
 }
