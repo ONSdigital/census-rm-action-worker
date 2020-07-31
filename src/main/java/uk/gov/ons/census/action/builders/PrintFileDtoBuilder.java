@@ -14,6 +14,8 @@ public class PrintFileDtoBuilder {
       Set.of(
           ActionType.P_RL_1RL1A,
           ActionType.P_RL_1RL2BA,
+          ActionType.P_RL_2RL1,
+          ActionType.P_RL_2RL2B,
           ActionType.P_RL_2RL1A,
           ActionType.P_RL_2RL2BA,
           ActionType.P_RL_1IRL1,
