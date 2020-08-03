@@ -52,7 +52,6 @@ import uk.gov.ons.census.action.model.repository.FulfilmentToProcessRepository;
 @ContextConfiguration
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ChunkPollerIT {
   private static final String MULTIPLE_QIDS_URL = "/multiple_qids";
@@ -84,7 +83,6 @@ public class ChunkPollerIT {
     caseRepository.deleteAllInBatch();
     actionRuleRepository.deleteAllInBatch();
     actionPlanRepository.deleteAllInBatch();
-    mockUacQidService.resetAll();
   }
 
   @Test
@@ -297,7 +295,6 @@ public class ChunkPollerIT {
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid(1);
-      Thread.sleep(30000); // wait for wiremockery
 
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
@@ -307,8 +304,8 @@ public class ChunkPollerIT {
       List<String> actualPrintMessages = new LinkedList<>();
       List<String> actualUacCreatedMessages = new LinkedList<>();
       for (int i = 0; i < 5; i++) {
-        String actualPrintMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-        String actualUacCreatedMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+        String actualPrintMessage = printerQueue.getQueue().poll(60, TimeUnit.SECONDS);
+        String actualUacCreatedMessage = uacQidCreatedQueue.getQueue().poll(60, TimeUnit.SECONDS);
         assertThat(actualPrintMessage).isNotNull();
         actualPrintMessages.add(actualPrintMessage);
         assertThat(actualUacCreatedMessage).isNotNull();
