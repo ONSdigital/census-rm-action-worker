@@ -53,7 +53,7 @@ public class UacQidCacheIT {
   @Value("${uacservice.uacqid-fetch-count}")
   private int cacheFetch;
 
-  @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8089));
+  @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8899));
 
   /**
    * This test checks the nightmare scenario of something causing an endless loop of death
