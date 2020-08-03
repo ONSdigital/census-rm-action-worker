@@ -82,6 +82,7 @@ public class ChunkPollerIT {
     caseRepository.deleteAllInBatch();
     actionRuleRepository.deleteAllInBatch();
     actionPlanRepository.deleteAllInBatch();
+    mockUacQidService.resetAll(); // Hack for Travis unreliability problems
   }
 
   @Test
@@ -294,7 +295,6 @@ public class ChunkPollerIT {
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid(1);
-      Thread.sleep(5000); // Wait for Wiremock to sort itself out - Travis unreliable
 
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
