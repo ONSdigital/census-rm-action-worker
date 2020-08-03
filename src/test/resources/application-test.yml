@@ -6,4 +6,4 @@ spring:
 
 uacservice:
   connection:
-    port: 8089
+    port: 8899
