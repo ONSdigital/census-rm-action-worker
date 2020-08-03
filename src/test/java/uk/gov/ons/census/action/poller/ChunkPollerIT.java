@@ -68,7 +68,7 @@ public class ChunkPollerIT {
   @Autowired private CaseToProcessRepository caseToProcessRepository;
   @Autowired private FulfilmentToProcessRepository fulfilmentToProcessRepository;
 
-  @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8089));
+  @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8899));
 
   @Before
   @Transactional
