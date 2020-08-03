@@ -84,6 +84,7 @@ public class ChunkPollerIT {
     caseRepository.deleteAllInBatch();
     actionRuleRepository.deleteAllInBatch();
     actionPlanRepository.deleteAllInBatch();
+    mockUacQidService.resetAll();
   }
 
   @Test
@@ -296,6 +297,8 @@ public class ChunkPollerIT {
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid(1);
+      Thread.sleep(30000); // wait for wiremockery
+
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
       ActionRule actionRule = setUpActionRule(ActionType.CE_IC03, actionPlan);
