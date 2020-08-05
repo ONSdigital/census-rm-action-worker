@@ -68,7 +68,7 @@ public class ChunkPollerIT {
   @Autowired private CaseToProcessRepository caseToProcessRepository;
   @Autowired private FulfilmentToProcessRepository fulfilmentToProcessRepository;
 
-  @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8089));
+  @Rule public WireMockRule mockUacQidService = new WireMockRule(wireMockConfig().port(8899));
 
   @Before
   @Transactional
@@ -294,6 +294,8 @@ public class ChunkPollerIT {
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid(1);
+      Thread.sleep(10000); // Workaround for dreadfulness of Travis
+
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
       ActionRule actionRule = setUpActionRule(ActionType.CE_IC03, actionPlan);
@@ -302,8 +304,8 @@ public class ChunkPollerIT {
       List<String> actualPrintMessages = new LinkedList<>();
       List<String> actualUacCreatedMessages = new LinkedList<>();
       for (int i = 0; i < 5; i++) {
-        String actualPrintMessage = printerQueue.getQueue().poll(20, TimeUnit.SECONDS);
-        String actualUacCreatedMessage = uacQidCreatedQueue.getQueue().poll(20, TimeUnit.SECONDS);
+        String actualPrintMessage = printerQueue.getQueue().poll(60, TimeUnit.SECONDS);
+        String actualUacCreatedMessage = uacQidCreatedQueue.getQueue().poll(60, TimeUnit.SECONDS);
         assertThat(actualPrintMessage).isNotNull();
         actualPrintMessages.add(actualPrintMessage);
         assertThat(actualUacCreatedMessage).isNotNull();
