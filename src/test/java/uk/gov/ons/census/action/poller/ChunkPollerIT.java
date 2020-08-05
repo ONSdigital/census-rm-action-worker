@@ -289,6 +289,11 @@ public class ChunkPollerIT {
 
   @Test
   public void testCaseToProcessCeEstab() throws Exception {
+    Map<String, String> enviorntmentVars  = System.getenv();
+    System.out.println("*** START ENVIRONMENT VARIABLES ***");
+    enviorntmentVars.entrySet().forEach(System.out::println);
+    System.out.println("*** END ENVIRONMENT VARIABLES ***");
+
     try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE);
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
