@@ -289,7 +289,7 @@ public class ChunkPollerIT {
 
   @Test
   public void testCaseToProcessCeEstab() throws Exception {
-    Map<String, String> enviorntmentVars  = System.getenv();
+    Map<String, String> enviorntmentVars = System.getenv();
     System.out.println("*** START ENVIRONMENT VARIABLES ***");
     enviorntmentVars.entrySet().forEach(System.out::println);
     System.out.println("*** END ENVIRONMENT VARIABLES ***");
