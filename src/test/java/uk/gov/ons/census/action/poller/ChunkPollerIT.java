@@ -294,7 +294,7 @@ public class ChunkPollerIT {
         QueueSpy uacQidCreatedQueue = rabbitQueueHelper.listen(CASE_UAC_QID_CREATED_QUEUE)) {
       // Given
       UacQidDTO uacQidDto = stubCreateUacQid(1);
-      Thread.sleep(10000); // Workaround for dreadfulness of Travis
+      Thread.sleep(15000); // Workaround for dreadfulness of Travis
 
       ActionPlan actionPlan = setUpActionPlan();
       Case randomCase = setUpCase(actionPlan, 5);
