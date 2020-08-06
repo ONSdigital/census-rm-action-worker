@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import org.jeasy.random.EasyRandom;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -292,7 +293,7 @@ public class ChunkPollerIT {
   public void testCaseToProcessCeEstab() throws Exception {
     // Travis doesn't want to run the integration tests nicely, so we will ignore the ones
     // which fail because life is too short for this kind of nonsense.
-    if (isRunningInTravis()) return;
+    skipIfRunningInTravis();
 
     try (QueueSpy printerQueue = rabbitQueueHelper.listen(OUTBOUND_PRINTER_QUEUE);
         QueueSpy caseSelectedEventQueue = rabbitQueueHelper.listen(ACTION_CASE_QUEUE);
@@ -527,15 +528,12 @@ public class ChunkPollerIT {
     return caseRepository.saveAndFlush(randomCase);
   }
 
-  private boolean isRunningInTravis() {
+  private void skipIfRunningInTravis() {
     Map<String, String> environmentVars = System.getenv();
     for (Entry<String, String> entry : environmentVars.entrySet()) {
       if (entry.getKey().equals("TRAVIS") && entry.getValue().equals("true")) {
-        System.out.println("Skipping integration test that doesn't work in Travis");
-        return true;
+        Assume.assumeFalse("Skipping integration test that doesn't work in Travis", true);
       }
     }
-
-    return false;
   }
 }
