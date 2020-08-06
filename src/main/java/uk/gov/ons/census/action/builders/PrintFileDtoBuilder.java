@@ -12,6 +12,7 @@ import uk.gov.ons.census.action.model.entity.Case;
 public class PrintFileDtoBuilder {
   private static final Set<ActionType> doesNotRequireUacQidActionTypes =
       Set.of(
+          ActionType.P_RL_1RL1_1,
           ActionType.P_RL_1RL1A,
           ActionType.P_RL_1RL2BA,
           ActionType.P_RL_2RL1A,
