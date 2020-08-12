@@ -63,6 +63,10 @@
       <artifactId>hibernate-types-5</artifactId>
       <version>2.4.3</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
 
     <!--    Test Dependencies below this point -->
     <dependency>
@@ -93,7 +97,6 @@
       <version>2.27.0</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
