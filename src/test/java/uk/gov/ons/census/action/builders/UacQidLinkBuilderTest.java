@@ -383,15 +383,18 @@ public class UacQidLinkBuilderTest {
     // We need to include welsh questionnaire treatment codes in the CE1 CE_IC02 letter run
     testCase.setTreatmentCode("CE_QDIEW");
 
-    // when
+    // When
     UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE1_IC02);
 
+    // Then
+    // The single CE1 QID pair is returned
     UacQidLink actualUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualUacQidLink.getQid()).isEqualTo(qidCE1Welsh);
     assertThat(actualUacQidLink.getUac()).isEqualTo(uacCE1Welsh);
     assertThat(actualUacQidLink.isActive()).isTrue();
 
+    // There should not be a second dual language QID pair
     assertThat(uacQidTuple.getUacQidLinkWales()).isNotPresent();
   }
 
