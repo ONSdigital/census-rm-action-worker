@@ -137,7 +137,7 @@ public class UacQidLinkBuilder {
         return getUacQidTupleWithSecondWelshPair(uacQidLinks, actionType);
       }
 
-    } else if (isStateCorrectForSingleUacQidPair(linkedCase, uacQidLinks)) {
+    } else if (isStateCorrectForSingleUacQidPair(linkedCase, uacQidLinks, actionType)) {
       return getUacQidTupleWithSinglePair(uacQidLinks);
     }
 
@@ -145,8 +145,11 @@ public class UacQidLinkBuilder {
         String.format("Wrong number of UACs for treatment code '%s'", actionType));
   }
 
-  private boolean isStateCorrectForSingleUacQidPair(Case linkedCase, List<UacQidLink> uacQidLinks) {
-    return !isQuestionnaireWelsh(linkedCase.getTreatmentCode())
+  private boolean isStateCorrectForSingleUacQidPair(
+      Case linkedCase, List<UacQidLink> uacQidLinks, ActionType actionType) {
+    return (!isQuestionnaireWelsh(linkedCase.getTreatmentCode())
+            // CE_IC02 is single QID letter but includes welsh questionnaire treatment codes
+            || actionType == ActionType.CE1_IC02)
         && uacQidLinks.size() == NUM_OF_UAC_QID_PAIRS_NEEDED_FOR_SINGLE_LANGUAGE;
   }
 

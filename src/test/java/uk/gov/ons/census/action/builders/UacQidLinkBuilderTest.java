@@ -81,13 +81,13 @@ public class UacQidLinkBuilderTest {
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
-    assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualEnglandUacQidLink.isActive()).isFalse();
 
     UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
     assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
     assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
-    assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualWalesdUacQidLink.isActive()).isFalse();
   }
 
   @Test
@@ -140,13 +140,13 @@ public class UacQidLinkBuilderTest {
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
-    assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualEnglandUacQidLink.isActive()).isFalse();
 
     UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
     assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
     assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
-    assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualWalesdUacQidLink.isActive()).isFalse();
   }
 
   @Test
@@ -199,13 +199,13 @@ public class UacQidLinkBuilderTest {
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
-    assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualEnglandUacQidLink.isActive()).isFalse();
 
     UacQidLink actualWalesdUacQidLink = uacQidTuple.getUacQidLinkWales().get();
     assertThat(actualWalesdUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualWalesdUacQidLink.getQid()).isEqualTo(qidWal);
     assertThat(actualWalesdUacQidLink.getUac()).isEqualTo(uacWal);
-    assertThat(actualWalesdUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualWalesdUacQidLink.isActive()).isFalse();
   }
 
   @Test
@@ -233,9 +233,9 @@ public class UacQidLinkBuilderTest {
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
     assertThat(actualEnglandUacQidLink.getQid()).isEqualTo(qidEng);
     assertThat(actualEnglandUacQidLink.getUac()).isEqualTo(uacEng);
-    assertThat(actualEnglandUacQidLink.isActive()).isEqualTo(false);
+    assertThat(actualEnglandUacQidLink.isActive()).isFalse();
 
-    assertThat(uacQidTuple.getUacQidLinkWales().isPresent()).isEqualTo(false);
+    assertThat(uacQidTuple.getUacQidLinkWales()).isNotPresent();
   }
 
   @Test(expected = RuntimeException.class)
@@ -361,6 +361,41 @@ public class UacQidLinkBuilderTest {
 
     // Then
     // Exception thrown - expected
+  }
+
+  @Test
+  public void testIC02WorksForWelshQuestionnaireCECase() {
+    // Given
+    Case testCase = easyRandom.nextObject(Case.class);
+    String uacCE1Welsh = easyRandom.nextObject(String.class);
+    String qidCE1Welsh = "3220000010732199";
+
+    List<UacQidLink> uacQidLinks = new ArrayList<>();
+    UacQidLink uacQidLink = new UacQidLink();
+    uacQidLink.setCaseId(testCase.getCaseId());
+    uacQidLink.setUac(uacCE1Welsh);
+    uacQidLink.setQid(qidCE1Welsh);
+    uacQidLink.setActive(true);
+    uacQidLinks.add(uacQidLink);
+
+    when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
+
+    // We need to include welsh questionnaire treatment codes in the CE1 CE_IC02 letter run
+    testCase.setTreatmentCode("CE_QDIEW");
+
+    // When
+    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE1_IC02);
+
+    // Then
+    // The single CE1 QID pair is returned
+    UacQidLink actualUacQidLink = uacQidTuple.getUacQidLink();
+    assertThat(actualUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
+    assertThat(actualUacQidLink.getQid()).isEqualTo(qidCE1Welsh);
+    assertThat(actualUacQidLink.getUac()).isEqualTo(uacCE1Welsh);
+    assertThat(actualUacQidLink.isActive()).isTrue();
+
+    // There should not be a second dual language QID pair
+    assertThat(uacQidTuple.getUacQidLinkWales()).isNotPresent();
   }
 
   @Test(expected = RuntimeException.class)
