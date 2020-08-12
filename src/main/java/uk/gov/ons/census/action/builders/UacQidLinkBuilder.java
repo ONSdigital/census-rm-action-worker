@@ -4,8 +4,6 @@ import static uk.gov.ons.census.action.model.dto.EventType.RM_UAC_CREATED;
 import static uk.gov.ons.census.action.utility.ActionTypeHelper.isExpectedCapacityActionType;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -106,7 +104,7 @@ public class UacQidLinkBuilder {
 
     Event event = new Event();
     event.setType(RM_UAC_CREATED);
-    event.setDateTime(DateTimeFormatter.ISO_DATE_TIME.format(OffsetDateTime.now(ZoneId.of("UTC"))));
+    event.setDateTime(OffsetDateTime.now());
     event.setTransactionId(UUID.randomUUID().toString());
     ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
     responseManagementEvent.setEvent(event);

@@ -1,8 +1,6 @@
 package uk.gov.ons.census.action.builders;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import uk.gov.ons.census.action.model.dto.Event;
@@ -51,7 +49,7 @@ public class CaseSelectedBuilder {
     event.setType(eventType);
     event.setSource("ACTION_WORKER");
     event.setChannel("RM");
-    event.setDateTime(DateTimeFormatter.ISO_DATE_TIME.format(OffsetDateTime.now(ZoneId.of("UTC"))));
+    event.setDateTime(OffsetDateTime.now());
     event.setTransactionId(UUID.randomUUID().toString());
 
     return responseManagementEvent;
