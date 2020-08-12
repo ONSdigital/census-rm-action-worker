@@ -379,7 +379,7 @@ public class UacQidLinkBuilderTest {
     uacQidLinks.add(uacQidLink);
 
     when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
-    
+
     // We need to include welsh questionnaire treatment codes in the CE1 CE_IC02 letter run
     testCase.setTreatmentCode("CE_QDIEW");
 
