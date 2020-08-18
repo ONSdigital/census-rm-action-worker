@@ -29,14 +29,15 @@ public class PrintFileDtoBuilder {
   }
 
   public PrintFileDto buildPrintFileDto(
-      Case selectedCase, String packCode, UUID batchUUID, ActionType actionType) {
+      Case selectedCase, String packCode, UUID batchId, ActionType actionType, UUID actionRuleId) {
 
     PrintFileDto printFileDto = new PrintFileDto();
 
     // "EQ launched but not submitted/completed" reminders don't have a UAC-QID pair for security
     // because the respondent has already partially filled in their EQ.
     if (!doesNotRequireUacQidActionTypes.contains(actionType)) {
-      UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType);
+      UacQidTuple uacQidTuple =
+          uacQidLinkBuilder.getUacQidLinks(selectedCase, actionType, actionRuleId);
 
       printFileDto.setUac(uacQidTuple.getUacQidLink().getUac());
       printFileDto.setQid(uacQidTuple.getUacQidLink().getQid());
@@ -53,7 +54,7 @@ public class PrintFileDtoBuilder {
     printFileDto.setAddressLine3(selectedCase.getAddressLine3());
     printFileDto.setTownName(selectedCase.getTownName());
     printFileDto.setPostcode(selectedCase.getPostcode());
-    printFileDto.setBatchId(batchUUID.toString());
+    printFileDto.setBatchId(batchId);
     printFileDto.setPackCode(packCode);
     printFileDto.setActionType(actionType.toString());
     printFileDto.setFieldCoordinatorId(selectedCase.getFieldCoordinatorId());

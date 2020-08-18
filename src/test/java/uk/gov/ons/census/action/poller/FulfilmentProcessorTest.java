@@ -49,7 +49,7 @@ public class FulfilmentProcessorTest {
     fulfilmentToProcess.setBatchId(UUID.randomUUID());
 
     UacQidLink uacQidLink = easyRandom.nextObject(UacQidLink.class);
-    when(uacQidLinkBuilder.createNewUacQidPair(any(Case.class), anyString()))
+    when(uacQidLinkBuilder.createNewUacQidPair(any(Case.class), anyString(), any(UUID.class)))
         .thenReturn(uacQidLink);
 
     ResponseManagementEvent printMessage = easyRandom.nextObject(ResponseManagementEvent.class);
@@ -91,7 +91,9 @@ public class FulfilmentProcessorTest {
     assertThat(printFileDto.getUac()).isEqualTo(uacQidLink.getUac());
     assertThat(printFileDto.getQid()).isEqualTo(uacQidLink.getQid());
 
-    verify(uacQidLinkBuilder).createNewUacQidPair(eq(fulfilmentToProcess.getCaze()), eq("1"));
+    verify(uacQidLinkBuilder)
+        .createNewUacQidPair(
+            eq(fulfilmentToProcess.getCaze()), eq("1"), eq(fulfilmentToProcess.getBatchId()));
 
     verify(caseSelectedBuilder)
         .buildPrintMessage(

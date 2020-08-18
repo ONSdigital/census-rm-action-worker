@@ -62,7 +62,7 @@ public class CaseProcessorTest {
     printFileDto.setPackCode("P_IC_ICL1");
     ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
 
-    when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any()))
+    when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any(), any()))
         .thenReturn(printFileDto);
     when(caseSelectedBuilder.buildPrintMessage(
             any(UUID.class), anyLong(), anyString(), any(UUID.class)))
@@ -74,7 +74,11 @@ public class CaseProcessorTest {
     // Then
     verify(printFileDtoBuilder)
         .buildPrintFileDto(
-            eq(caze), eq("P_IC_ICL1"), eq(caseToProcess.getBatchId()), eq(ActionType.ICL1E));
+            eq(caze),
+            eq("P_IC_ICL1"),
+            eq(caseToProcess.getBatchId()),
+            eq(ActionType.ICL1E),
+            eq(actionRule.getId()));
     verify(caseSelectedBuilder)
         .buildPrintMessage(
             eq(caseToProcess.getBatchId()),
@@ -108,7 +112,7 @@ public class CaseProcessorTest {
     printFileDto.setPackCode("D_ICA_ICLR1");
     ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
 
-    when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any()))
+    when(printFileDtoBuilder.buildPrintFileDto(any(), any(), any(), any(), any()))
         .thenReturn(printFileDto);
     when(caseSelectedBuilder.buildPrintMessage(
             any(UUID.class), anyLong(), anyString(), any(UUID.class)))
@@ -120,7 +124,11 @@ public class CaseProcessorTest {
     // Then
     verify(printFileDtoBuilder, times(5))
         .buildPrintFileDto(
-            eq(caze), eq("D_ICA_ICLR1"), eq(caseToProcess.getBatchId()), eq(ActionType.CE_IC03));
+            eq(caze),
+            eq("D_ICA_ICLR1"),
+            eq(caseToProcess.getBatchId()),
+            eq(ActionType.CE_IC03),
+            eq(actionRule.getId()));
     verify(caseSelectedBuilder)
         .buildPrintMessage(
             eq(caseToProcess.getBatchId()),

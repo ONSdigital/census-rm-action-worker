@@ -52,7 +52,8 @@ public class PrintFileDtoBuilderTest {
             testCaze,
             actionTypeToPackCodeMap.get(expectedActionType),
             BATCH_UUID,
-            ActionType.ICHHQW);
+            ActionType.ICHHQW,
+            UUID.randomUUID());
 
     // Then
     assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);
@@ -75,7 +76,8 @@ public class PrintFileDtoBuilderTest {
             testCaze,
             actionTypeToPackCodeMap.get(expectedActionType),
             BATCH_UUID,
-            ActionType.P_RL_1RL1A);
+            ActionType.P_RL_1RL1A,
+            UUID.randomUUID());
 
     // Then
     assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);
@@ -94,7 +96,7 @@ public class PrintFileDtoBuilderTest {
     uacQidTuple.setUacQidLinkWales(Optional.of(welshLink));
 
     UacQidLinkBuilder uacQidLinkBuilder = mock(UacQidLinkBuilder.class);
-    when(uacQidLinkBuilder.getUacQidLinks(any(Case.class), any(ActionType.class)))
+    when(uacQidLinkBuilder.getUacQidLinks(any(Case.class), any(ActionType.class), any(UUID.class)))
         .thenReturn(uacQidTuple);
 
     return uacQidLinkBuilder;
@@ -117,8 +119,7 @@ public class PrintFileDtoBuilderTest {
     printFileDto.setAddressLine3(caze.getAddressLine3());
     printFileDto.setTownName(caze.getTownName());
     printFileDto.setPostcode(caze.getPostcode());
-
-    printFileDto.setBatchId(BATCH_UUID.toString());
+    printFileDto.setBatchId(BATCH_UUID);
     printFileDto.setPackCode(actionTypeToPackCodeMap.get(expectedActionType));
     printFileDto.setActionType(actionType.toString());
     printFileDto.setFieldCoordinatorId(caze.getFieldCoordinatorId());

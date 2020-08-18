@@ -161,7 +161,7 @@ public class ChunkPollerIT {
               "batchQuantity",
               "packCode",
               "actionType");
-      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(caseToProcess.getBatchId().toString());
+      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(caseToProcess.getBatchId());
       assertThat(actualPrintFileDto.getBatchQuantity()).isEqualTo(caseToProcess.getBatchQuantity());
     }
   }
@@ -250,7 +250,7 @@ public class ChunkPollerIT {
               "batchQuantity",
               "packCode",
               "actionType");
-      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(caseToProcess.getBatchId().toString());
+      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(caseToProcess.getBatchId());
       assertThat(actualPrintFileDto.getBatchQuantity()).isEqualTo(caseToProcess.getBatchQuantity());
     }
   }
@@ -454,8 +454,7 @@ public class ChunkPollerIT {
               "batchQuantity",
               "packCode",
               "actionType");
-      assertThat(actualPrintFileDto.getBatchId())
-          .isEqualTo(fulfilmentToProcess.getBatchId().toString());
+      assertThat(actualPrintFileDto.getBatchId()).isEqualTo(fulfilmentToProcess.getBatchId());
       assertThat(actualPrintFileDto.getBatchQuantity())
           .isEqualTo(fulfilmentToProcess.getQuantity());
     }

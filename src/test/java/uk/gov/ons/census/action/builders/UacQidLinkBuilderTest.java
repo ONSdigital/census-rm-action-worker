@@ -75,7 +75,8 @@ public class UacQidLinkBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // when
-    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    UacQidTuple uacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW, UUID.randomUUID());
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
@@ -134,7 +135,8 @@ public class UacQidLinkBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // when
-    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.SPG_IC14);
+    UacQidTuple uacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.SPG_IC14, UUID.randomUUID());
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
@@ -193,7 +195,8 @@ public class UacQidLinkBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // when
-    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE_IC10);
+    UacQidTuple uacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE_IC10, UUID.randomUUID());
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
@@ -227,7 +230,8 @@ public class UacQidLinkBuilderTest {
     testCase.setTreatmentCode("NotWelshTreatmentCode");
 
     // when
-    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
+    UacQidTuple uacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E, UUID.randomUUID());
 
     UacQidLink actualEnglandUacQidLink = uacQidTuple.getUacQidLink();
     assertThat(actualEnglandUacQidLink.getCaseId()).isEqualTo(testCase.getCaseId());
@@ -261,7 +265,7 @@ public class UacQidLinkBuilderTest {
     when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     // When
-    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW, UUID.randomUUID());
 
     // Then
     // Exception thrown - expected
@@ -290,7 +294,7 @@ public class UacQidLinkBuilderTest {
     when(uacQidLinkRepository.findByCaseId(testCase.getCaseId())).thenReturn(uacQidLinks);
 
     // When
-    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW, UUID.randomUUID());
 
     // Then
     // Exception thrown - The second welsh QID must have questionnaire type "03"
@@ -329,7 +333,7 @@ public class UacQidLinkBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // When
-    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW, UUID.randomUUID());
 
     // Then
     // Exception thrown - expected
@@ -357,7 +361,7 @@ public class UacQidLinkBuilderTest {
             + WALES_TREATMENT_CODE_SUFFIX);
 
     // When
-    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW, UUID.randomUUID());
 
     // Then
     // Exception thrown - expected
@@ -384,7 +388,8 @@ public class UacQidLinkBuilderTest {
     testCase.setTreatmentCode("CE_QDIEW");
 
     // When
-    UacQidTuple uacQidTuple = uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE1_IC02);
+    UacQidTuple uacQidTuple =
+        uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.CE1_IC02, UUID.randomUUID());
 
     // Then
     // The single CE1 QID pair is returned
@@ -412,7 +417,7 @@ public class UacQidLinkBuilderTest {
         .thenReturn(Collections.EMPTY_LIST);
 
     // When
-    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICL1E, UUID.randomUUID());
 
     // Then
     // Exception thrown - expected
@@ -447,7 +452,7 @@ public class UacQidLinkBuilderTest {
     when(uacQidLinkRepository.findByCaseId(eq(testCase.getCaseId()))).thenReturn(uacQidLinks);
 
     // When
-    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW);
+    uacQidLinkBuilder.getUacQidLinks(testCase, ActionType.ICHHQW, UUID.randomUUID());
 
     // Then
     // Exception thrown - expected
@@ -466,7 +471,7 @@ public class UacQidLinkBuilderTest {
 
     // When
     UacQidTuple actualUacQidTuple =
-        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_RL_1RL1_1);
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_RL_1RL1_1, UUID.randomUUID());
 
     // Then
     verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(ENGLISH_QUESTIONNAIRE_TYPE)));
@@ -499,7 +504,7 @@ public class UacQidLinkBuilderTest {
 
     // When
     UacQidTuple actualUacQidTuple =
-        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H1);
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H1, UUID.randomUUID());
 
     // Then
     verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(ENGLISH_QUESTIONNAIRE_TYPE)));
@@ -536,7 +541,7 @@ public class UacQidLinkBuilderTest {
 
     // When
     UacQidTuple actualUacQidTuple =
-        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H2);
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.P_QU_H2, UUID.randomUUID());
 
     // Then
     verify(uacQidCache).getUacQidPair(eq(Integer.parseInt(WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE)));
@@ -573,7 +578,7 @@ public class UacQidLinkBuilderTest {
 
     // When
     UacQidTuple actualUacQidTuple =
-        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.CE_IC10);
+        uacQidLinkBuilder.getUacQidLinks(linkedCase, ActionType.CE_IC10, UUID.randomUUID());
 
     // Then
     verify(uacQidCache)
