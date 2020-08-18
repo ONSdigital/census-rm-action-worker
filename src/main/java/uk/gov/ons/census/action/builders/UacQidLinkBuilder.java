@@ -97,8 +97,7 @@ public class UacQidLinkBuilder {
     }
   }
 
-  public UacQidLink createNewUacQidPair(
-      Case linkedCase, String questionnaireType, UUID batchId) {
+  public UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType, UUID batchId) {
     UacQidDTO newUacQidPair = uacQidCache.getUacQidPair(Integer.parseInt(questionnaireType));
     UacQidCreated uacQidCreated = new UacQidCreated();
     uacQidCreated.setCaseId(linkedCase.getCaseId());
