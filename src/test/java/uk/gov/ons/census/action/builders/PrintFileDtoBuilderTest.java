@@ -52,7 +52,8 @@ public class PrintFileDtoBuilderTest {
             testCaze,
             actionTypeToPackCodeMap.get(expectedActionType),
             BATCH_UUID,
-            ActionType.ICHHQW);
+            ActionType.ICHHQW,
+            UUID.randomUUID());
 
     // Then
     assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);
@@ -75,7 +76,8 @@ public class PrintFileDtoBuilderTest {
             testCaze,
             actionTypeToPackCodeMap.get(expectedActionType),
             BATCH_UUID,
-            ActionType.P_RL_1RL1A);
+            ActionType.P_RL_1RL1A,
+            UUID.randomUUID());
 
     // Then
     assertThat(actualPrintFileDto).isEqualToComparingFieldByField(expectedPrintFileDto);

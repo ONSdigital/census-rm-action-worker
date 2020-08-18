@@ -68,7 +68,8 @@ public class CaseProcessor {
               caseToProcess.getCaze(),
               triggeredActionRule.getActionType().getPackCode(),
               batchId,
-              triggeredActionRule.getActionType());
+              triggeredActionRule.getActionType(),
+              triggeredActionRule.getId());
       printFileDto.setBatchQuantity(batchQty);
       rabbitTemplate.convertAndSend(outboundExchange, routingKey, printFileDto);
     }
