@@ -80,7 +80,7 @@ public class FulfilmentProcessor {
   private PrintFileDto buildPrintFileDto(FulfilmentToProcess fulfilmentToProcess) {
     PrintFileDto fulfilmentPrintFile = new PrintFileDto();
 
-    fulfilmentPrintFile.setBatchId(fulfilmentToProcess.getBatchId().toString());
+    fulfilmentPrintFile.setBatchId(fulfilmentToProcess.getBatchId());
     fulfilmentPrintFile.setBatchQuantity(fulfilmentToProcess.getQuantity());
 
     fulfilmentPrintFile.setActionType(fulfilmentToProcess.getActionType().name());
@@ -107,7 +107,9 @@ public class FulfilmentProcessor {
     if (questionnaireType.isPresent()) {
       UacQidLink uacQid =
           uacQidLinkBuilder.createNewUacQidPair(
-              fulfilmentToProcess.getCaze(), questionnaireType.get().toString());
+              fulfilmentToProcess.getCaze(),
+              questionnaireType.get().toString(),
+              fulfilmentToProcess.getBatchId());
       fulfilmentPrintFile.setQid(uacQid.getQid());
       fulfilmentPrintFile.setUac(uacQid.getUac());
     }

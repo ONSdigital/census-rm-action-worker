@@ -83,22 +83,23 @@ public class UacQidLinkBuilder {
     this.uacQidCreatedExchange = uacQidCreatedExchange;
   }
 
-  public UacQidTuple getUacQidLinks(Case linkedCase, ActionType actionType) {
+  public UacQidTuple getUacQidLinks(Case linkedCase, ActionType actionType, UUID batchId) {
     if (isInitialContactNotExpectedCapacityActionType(actionType)) {
       return fetchExistingUacQidPairsForAction(linkedCase, actionType);
     } else if (isExpectedCapacityActionType(actionType)) {
       // We override the address level for these action types because we want to create individual
       // uac qid pairs
-      return createNewUacQidPairsForAction(linkedCase, actionType, "U");
+      return createNewUacQidPairsForAction(linkedCase, actionType, "U", batchId);
     } else {
-      return createNewUacQidPairsForAction(linkedCase, actionType);
+      return createNewUacQidPairsForAction(linkedCase, actionType, batchId);
     }
   }
 
-  public UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType) {
+  public UacQidLink createNewUacQidPair(Case linkedCase, String questionnaireType, UUID batchId) {
     UacQidDTO newUacQidPair = uacQidCache.getUacQidPair(Integer.parseInt(questionnaireType));
     UacQidCreated uacQidCreated = new UacQidCreated();
     uacQidCreated.setCaseId(linkedCase.getCaseId());
+    uacQidCreated.setBatchId(batchId);
     uacQidCreated.setQid(newUacQidPair.getQid());
     uacQidCreated.setUac(newUacQidPair.getUac());
 
@@ -188,25 +189,28 @@ public class UacQidLinkBuilder {
   }
 
   private UacQidTuple createNewUacQidPairsForAction(
-      Case linkedCase, ActionType actionType, String addressLevel) {
+      Case linkedCase, ActionType actionType, String addressLevel, UUID batchId) {
     UacQidTuple uacQidTuple = new UacQidTuple();
-    uacQidTuple.setUacQidLink(
-        createNewUacQidPair(
-            linkedCase,
-            calculateQuestionnaireType(
-                linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel)));
+    String questionnaireType =
+        calculateQuestionnaireType(linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel);
+
+    uacQidTuple.setUacQidLink(createNewUacQidPair(linkedCase, questionnaireType, batchId));
     if (actionType.equals(ActionType.P_QU_H2)) {
       uacQidTuple.setUacQidLinkWales(
-          Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE)));
+          Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE, batchId)));
     } else if (actionType.equals(ActionType.CE_IC10)) {
       uacQidTuple.setUacQidLinkWales(
-          Optional.of(createNewUacQidPair(linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES)));
+          Optional.of(
+              createNewUacQidPair(
+                  linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE_CE_CASES, batchId)));
     }
     return uacQidTuple;
   }
 
-  private UacQidTuple createNewUacQidPairsForAction(Case linkedCase, ActionType actionType) {
-    return createNewUacQidPairsForAction(linkedCase, actionType, linkedCase.getAddressLevel());
+  private UacQidTuple createNewUacQidPairsForAction(
+      Case linkedCase, ActionType actionType, UUID batchId) {
+    return createNewUacQidPairsForAction(
+        linkedCase, actionType, linkedCase.getAddressLevel(), batchId);
   }
 
   private boolean isQuestionnaireWelsh(String treatmentCode) {

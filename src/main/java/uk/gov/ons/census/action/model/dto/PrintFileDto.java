@@ -1,5 +1,6 @@
 package uk.gov.ons.census.action.model.dto;
 
+import java.util.UUID;
 import lombok.Data;
 
 @Data
@@ -17,7 +18,7 @@ public class PrintFileDto {
   private String addressLine3;
   private String townName;
   private String postcode;
-  private String batchId;
+  private UUID batchId;
   private int batchQuantity;
   private String packCode;
   private String actionType;
