@@ -7,9 +7,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ons.census.action.model.entity.ActionType.P_OR_HX;
 import static uk.gov.ons.census.action.model.entity.ActionType.P_QU_H2;
 import static uk.gov.ons.census.action.model.entity.ActionType.P_RL_1RL1_1;
+import static uk.gov.ons.census.action.model.entity.FulfilmentType.P_OR_HX;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -388,7 +388,7 @@ public class ChunkPollerIT {
       Case randomCase = setUpCase(actionPlan, null);
       FulfilmentToProcess fulfilmentToProcess = new FulfilmentToProcess();
       fulfilmentToProcess.setFulfilmentCode("P_OR_H1");
-      fulfilmentToProcess.setActionType(P_OR_HX);
+      fulfilmentToProcess.setFulfilmentType(P_OR_HX);
       fulfilmentToProcess.setAddressLine1(randomCase.getAddressLine1());
       fulfilmentToProcess.setAddressLine2(randomCase.getAddressLine2());
       fulfilmentToProcess.setAddressLine3(randomCase.getAddressLine3());

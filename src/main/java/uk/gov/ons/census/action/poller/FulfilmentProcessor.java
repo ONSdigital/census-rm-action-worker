@@ -83,7 +83,7 @@ public class FulfilmentProcessor {
     fulfilmentPrintFile.setBatchId(fulfilmentToProcess.getBatchId());
     fulfilmentPrintFile.setBatchQuantity(fulfilmentToProcess.getQuantity());
 
-    fulfilmentPrintFile.setActionType(fulfilmentToProcess.getActionType().name());
+    fulfilmentPrintFile.setActionType(fulfilmentToProcess.getFulfilmentType().name());
     fulfilmentPrintFile.setPackCode(fulfilmentToProcess.getFulfilmentCode());
     fulfilmentPrintFile.setCaseRef(fulfilmentToProcess.getCaze().getCaseRef());
 
