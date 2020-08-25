@@ -1,7 +1,14 @@
 package uk.gov.ons.census.action.model.entity;
 
 import java.util.UUID;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lombok.Data;
 
 @Entity
@@ -19,7 +26,7 @@ public class FulfilmentToProcess {
 
   @Column
   @Enumerated(EnumType.STRING)
-  private ActionType actionType;
+  private FulfilmentType fulfilmentType;
 
   @Column private String addressLine1;
 

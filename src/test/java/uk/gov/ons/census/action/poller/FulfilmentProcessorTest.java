@@ -19,6 +19,7 @@ import uk.gov.ons.census.action.builders.CaseSelectedBuilder;
 import uk.gov.ons.census.action.builders.UacQidLinkBuilder;
 import uk.gov.ons.census.action.model.dto.PrintFileDto;
 import uk.gov.ons.census.action.model.dto.ResponseManagementEvent;
+import uk.gov.ons.census.action.model.entity.ActionHandler;
 import uk.gov.ons.census.action.model.entity.ActionType;
 import uk.gov.ons.census.action.model.entity.Case;
 import uk.gov.ons.census.action.model.entity.FulfilmentToProcess;
@@ -65,7 +66,7 @@ public class FulfilmentProcessorTest {
     verify(rabbitTemplate)
         .convertAndSend(
             eq(OUTBOUND_EXCHANGE),
-            eq(ActionType.P_OR_HX.getHandler().getRoutingKey()),
+            eq(ActionHandler.PRINTER.getRoutingKey()),
             printFileDtoArgumentCaptor.capture());
 
     PrintFileDto printFileDto = printFileDtoArgumentCaptor.getValue();
@@ -84,7 +85,8 @@ public class FulfilmentProcessorTest {
             "fieldOfficerId",
             "organisationName");
 
-    assertThat(printFileDto.getActionType()).isEqualTo(fulfilmentToProcess.getActionType().name());
+    assertThat(printFileDto.getActionType())
+        .isEqualTo(fulfilmentToProcess.getFulfilmentType().name());
     assertThat(printFileDto.getCaseRef()).isEqualTo(fulfilmentToProcess.getCaze().getCaseRef());
     assertThat(printFileDto.getPackCode()).isEqualTo(fulfilmentToProcess.getFulfilmentCode());
 
@@ -150,7 +152,8 @@ public class FulfilmentProcessorTest {
             "fieldOfficerId",
             "organisationName");
 
-    assertThat(printFileDto.getActionType()).isEqualTo(fulfilmentToProcess.getActionType().name());
+    assertThat(printFileDto.getActionType())
+        .isEqualTo(fulfilmentToProcess.getFulfilmentType().name());
     assertThat(printFileDto.getCaseRef()).isEqualTo(fulfilmentToProcess.getCaze().getCaseRef());
     assertThat(printFileDto.getPackCode()).isEqualTo(fulfilmentToProcess.getFulfilmentCode());
 
