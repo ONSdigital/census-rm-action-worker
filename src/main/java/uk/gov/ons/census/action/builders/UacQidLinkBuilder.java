@@ -109,6 +109,8 @@ public class UacQidLinkBuilder {
     event.setType(RM_UAC_CREATED);
     event.setDateTime(OffsetDateTime.now());
     event.setTransactionId(UUID.randomUUID().toString());
+    event.setChannel("RM");
+    event.setSource("ACTION");
     ResponseManagementEvent responseManagementEvent = new ResponseManagementEvent();
     responseManagementEvent.setEvent(event);
     Payload payload = new Payload();
