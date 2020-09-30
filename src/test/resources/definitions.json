@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "name": "rmqmgrp455w0rd",
+      "name": "rmqmanager",
       "password_hash": "9ZGJuS0xx0aj/XG+XuLEYKqJU4Rnd80kDLNanOg4uJXufiv4",
       "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "management"
