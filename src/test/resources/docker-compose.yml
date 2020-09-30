@@ -14,7 +14,7 @@ services:
 
   rabbitmq:
     container_name: rabbitmq-action-worker-it
-    image: rabbitmq:3.6.10-management
+    image: rabbitmq:3.8-management
     ports:
       - "38369:4369"
       - "58672:25672"
@@ -22,9 +22,13 @@ services:
       - "38672:5672"
       - "48671:15671"
       - "48672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmquser
+      - RABBITMQ_DEFAULT_PASS=rmqp455w0rd
+      - RABBITMQ_CONFIG_FILE=/etc/rabbitmq/rabbitmq.conf
     volumes:
-      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
-      - ./definitions.json:/opt/definitions.json:ro
+      - ./definitions.json:/opt/definitions.json
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   actionscheduler:
     container_name: actionscheduler-actionworker-it

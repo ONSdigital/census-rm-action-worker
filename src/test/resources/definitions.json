@@ -1,41 +1,24 @@
 {
-  "rabbit_version": "3.6.10",
   "users": [
     {
-      "name": "management",
-      "password_hash": "RI5K1MHNIvcxXWYgJ+LNYx1OKuY5r/MP+6cEt2G2kdCq056y",
+      "name": "rmqmgrp455w0rd",
+      "password_hash": "9ZGJuS0xx0aj/XG+XuLEYKqJU4Rnd80kDLNanOg4uJXufiv4",
       "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "management"
     },
     {
-      "name": "guest",
-      "password_hash": "dnqt/BVd4E/iC5on6ACnJcDUsp1ykS9FpyWIojeJZHaKcSGP",
+      "name": "rmquser",
+      "password_hash": "aQpkvJ2NmkPkbXuur7p+IiuN5C0kQXV6QfZdHXO8o8hHUuAT",
       "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     }
   ],
-  "vhosts": [
-    {
-      "name": "/"
-    }
-  ],
-  "permissions": [
-    {
-      "user": "guest",
-      "vhost": "/",
-      "configure": ".*",
-      "write": ".*",
-      "read": ".*"
-    }
-  ],
-  "parameters": [],
   "global_parameters": [
     {
       "name": "cluster_name",
       "value": "rabbit@870b131ecb84"
     }
   ],
-  "policies": [],
   "queues": [
     {
       "name": "action.events",
