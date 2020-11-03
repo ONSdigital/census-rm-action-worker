@@ -34,7 +34,7 @@ spring:
   task:
     scheduling:
       pool:
-        size: 2
+        size: 10
 
 queueconfig:
   outbound-exchange: action-outbound-exchange
