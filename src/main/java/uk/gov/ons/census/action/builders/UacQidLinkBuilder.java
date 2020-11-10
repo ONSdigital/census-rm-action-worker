@@ -66,7 +66,8 @@ public class UacQidLinkBuilder {
   public static final String CE_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "CE_Q";
   public static final String SPG_INITIAL_CONTACT_QUESTIONNAIRE_TREATMENT_CODE_PREFIX = "SPG_Q";
   public static final String WALES_TREATMENT_CODE_SUFFIX = "W";
-
+  private static final String CE1_ENGLISH_QUESTIONNAIRE_TYPE = "31";
+  private static final String CE1_WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE = "32";
   private final UacQidLinkRepository uacQidLinkRepository;
   private final UacQidCache uacQidCache;
   private final RabbitTemplate rabbitTemplate;
@@ -198,12 +199,43 @@ public class UacQidLinkBuilder {
       String addressLevel,
       UUID actionRuleOrFulfilmentBatchId) {
     UacQidTuple uacQidTuple = new UacQidTuple();
+
+    // HERE BE DRAGONS
+    // Handling of rerun initial contact types
+    if (actionType.equals(ActionType.CE1_IC01_RERUN)) {
+      uacQidTuple.setUacQidLink(
+          createNewUacQidPair(
+              linkedCase, CE1_ENGLISH_QUESTIONNAIRE_TYPE, actionRuleOrFulfilmentBatchId));
+      return uacQidTuple;
+    }
+    if (actionType.equals(ActionType.CE1_IC02_RERUN)) {
+      uacQidTuple.setUacQidLink(
+          createNewUacQidPair(
+              linkedCase, CE1_WALES_IN_ENGLISH_QUESTIONNAIRE_TYPE, actionRuleOrFulfilmentBatchId));
+      return uacQidTuple;
+    }
+    if (actionType.equals(ActionType.ICHHQW_RERUN)
+        || actionType.equals(ActionType.SPG_IC14_RERUN)) {
+      String questionnaireType =
+          calculateQuestionnaireType(
+              linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel);
+
+      uacQidTuple.setUacQidLink(
+          createNewUacQidPair(linkedCase, questionnaireType, actionRuleOrFulfilmentBatchId));
+      uacQidTuple.setUacQidLinkWales(
+          Optional.of(
+              createNewUacQidPair(
+                  linkedCase, WALES_IN_WELSH_QUESTIONNAIRE_TYPE, actionRuleOrFulfilmentBatchId)));
+      return uacQidTuple;
+    }
+
     String questionnaireType =
         calculateQuestionnaireType(linkedCase.getCaseType(), linkedCase.getRegion(), addressLevel);
 
     uacQidTuple.setUacQidLink(
         createNewUacQidPair(linkedCase, questionnaireType, actionRuleOrFulfilmentBatchId));
     if (actionType.equals(ActionType.P_QU_H2)) {
+      // Action rules that require a second welsh letter/questionnaire QID
       uacQidTuple.setUacQidLinkWales(
           Optional.of(
               createNewUacQidPair(
