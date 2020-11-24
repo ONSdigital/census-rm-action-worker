@@ -18,7 +18,9 @@ public class PrintFileDtoBuilder {
           ActionType.P_RL_2RL2BA,
           ActionType.P_RL_1IRL2B,
           ActionType.P_RL_1IRL1,
-          ActionType.P_RL_1RL4A
+          ActionType.P_RL_1RL4A,
+          ActionType.P_NC_NCLTA1,
+          ActionType.P_NC_NCLTA2B
           // Adding to this list will result in no UAC being sent on the printed
           // letter/questionnaire. Please be certain of what you're doing before adding to it.
           );
