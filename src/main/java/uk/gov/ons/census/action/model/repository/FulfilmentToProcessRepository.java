@@ -9,6 +9,8 @@ import uk.gov.ons.census.action.model.entity.FulfilmentToProcess;
 
 public interface FulfilmentToProcessRepository extends JpaRepository<FulfilmentToProcess, UUID> {
 
+  long countByBatchIdNotNull();
+
   @Query(
       value =
           "SELECT * FROM actionv2.fulfilment_to_process where batch_id is not null and quantity is not null LIMIT :limit FOR UPDATE SKIP LOCKED",

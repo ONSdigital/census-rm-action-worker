@@ -62,6 +62,6 @@ public class ChunkProcessor {
 
   @Transactional
   public boolean isThereFulfilmentWorkToDo() {
-    return fulfilmentToProcessRepository.count() > 0;
+    return fulfilmentToProcessRepository.countByBatchIdNotNull() > 0;
   }
 }
