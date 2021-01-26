@@ -99,26 +99,26 @@ public class ChunkProcessorTest {
   @Test
   public void testIsThereFulfilmentWorkToDoNoThereIsNot() {
     // Given
-    when(fulfilmentToProcessRepository.count()).thenReturn(0L);
+    when(fulfilmentToProcessRepository.countByBatchIdNotNull()).thenReturn(0L);
 
     // When
     boolean actualResult = underTest.isThereFulfilmentWorkToDo();
 
     // Then
-    verify(fulfilmentToProcessRepository).count();
+    verify(fulfilmentToProcessRepository).countByBatchIdNotNull();
     assertThat(actualResult).isFalse();
   }
 
   @Test
   public void testIsThereFulfilmentWorkToDoYesThereIs() {
     // Given
-    when(fulfilmentToProcessRepository.count()).thenReturn(666L);
+    when(fulfilmentToProcessRepository.countByBatchIdNotNull()).thenReturn(666L);
 
     // When
     boolean actualResult = underTest.isThereFulfilmentWorkToDo();
 
     // Then
-    verify(fulfilmentToProcessRepository).count();
+    verify(fulfilmentToProcessRepository).countByBatchIdNotNull();
     assertThat(actualResult).isTrue();
   }
 }
